@@ -19,6 +19,8 @@ RUN cd /home/alice && mkdir actions-runner && cd actions-runner \
 RUN chown -R alice ~alice && /home/alice/actions-runner/bin/installdependencies.sh
 RUN echo "alice      ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/alice
 
+RUN --mount=type=bind,source=rwlock.cpp,target=/rwlock.cpp g++ -o /usr/local/bin/rwlock /rwlock.cpp -lrt -lpthread
+
 COPY start.sh start.sh
 
 # make the script executable

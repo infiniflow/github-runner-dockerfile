@@ -9,6 +9,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${RUNNER_WORKSPACE_PREFIX}:${RUNNER_WORKSPACE_PREFIX}
     privileged: true
+    ipc: host
     ulimits:
       nofile:
         soft: 262144
@@ -18,7 +19,7 @@ services:
       replicas: 2
       resources:
         limits:
-          cpus: '12.0'
+          cpus: '14.0'
         reservations:
           cpus: '8.0'
       restart_policy:
