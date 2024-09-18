@@ -33,7 +33,7 @@ cd $HOME/actions-runner
 sudo mkdir ${RUNNER_WORKSPACE} && sudo chown -R ${USER} ${RUNNER_WORKSPACE}
 
 LABELS_OPT=${EXTRA_LABELS:+--labels $EXTRA_LABELS}
-./config.sh --url https://github.com/${REPOSITORY} --token ${REG_TOKEN} --name ${RUNNER_NAME} ${LABELS_OPT} --work ${RUNNER_WORKSPACE} --replace --disableupdate
+./config.sh --url https://github.com/${REPOSITORY} --token ${REG_TOKEN} --name ${RUNNER_NAME} ${LABELS_OPT} --work ${RUNNER_WORKSPACE} --replace
 
 cleanup() {
     echo "Removing runner..."
