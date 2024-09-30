@@ -10,6 +10,18 @@ RUN apt update -y \
     && apt install -y --no-install-recommends curl jq build-essential libssl-dev libffi-dev libicu-dev python3 python3-venv python3-dev python3-pip sudo docker.io git gawk sed wget \
     && apt clean -y
 
+# https://docs.docker.com/engine/install/ubuntu/#install-docker-ce
+RUN apt update -y \
+    && apt purge -y docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc \
+    && apt install -y ca-certificates curl \
+    && install -m 0755 -d /etc/apt/keyrings \
+    && curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc \
+    && chmod a+r /etc/apt/keyrings/docker.asc \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null \
+    && apt update -y \
+    && apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin \
+    && apt clean -y
+
 RUN --mount=type=bind,source=rwlock.cpp,target=/rwlock.cpp g++ -o /usr/local/bin/rwlock /rwlock.cpp -lrt -lpthread
 
 RUN useradd -m alice \
