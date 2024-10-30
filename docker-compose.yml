@@ -19,7 +19,7 @@ services:
       replicas: 1
       resources:
         limits:
-          cpus: '16.0'
+          cpus: '12.0'
         reservations:
           cpus: '8.0'
       restart_policy:
