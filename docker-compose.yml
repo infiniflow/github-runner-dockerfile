@@ -10,6 +10,8 @@ services:
       - ${RUNNER_WORKSPACE_PREFIX}:${RUNNER_WORKSPACE_PREFIX}
     privileged: true
     ipc: host
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ulimits:
       nofile:
         soft: 262144
