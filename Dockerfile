@@ -1,6 +1,6 @@
 FROM ubuntu:24.04
 
-ARG RUNNER_VERSION="2.320.0"
+ARG RUNNER_VERSION="2.321.0"
 
 # Prevents installdependencies.sh from prompting the user and blocking the image creation
 ARG DEBIAN_FRONTEND=noninteractive
@@ -29,6 +29,7 @@ RUN useradd -m alice \
 # set the user to "alice" so all subsequent commands are run as the alice user
 USER alice
 ENV USER=alice HOME=/home/alice PATH=/home/alice/.local/bin:$PATH
+WORKDIR /home/alice
 
 RUN pipx install poetry && poetry self add poetry-plugin-pypi-mirror
 ENV POETRY_VIRTUALENVS_CREATE=true POETRY_VIRTUALENVS_IN_PROJECT=true POETRY_PYPI_MIRROR_URL=https://pypi.tuna.tsinghua.edu.cn/simple/

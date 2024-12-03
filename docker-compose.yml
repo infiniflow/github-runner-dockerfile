@@ -8,6 +8,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${RUNNER_WORKSPACE_PREFIX}:${RUNNER_WORKSPACE_PREFIX}
+      - ${HOME}/.docker/config.json:/home/alice/.docker/config.json
     privileged: true
     ipc: host
     extra_hosts:
