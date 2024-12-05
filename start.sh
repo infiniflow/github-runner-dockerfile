@@ -20,17 +20,20 @@ echo "CPUS ${CPUS}"
 
 # https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#create-a-registration-token-for-an-organization
 # https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#create-a-registration-token-for-a-repository
-#https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#delete-a-self-hosted-runner-from-an-organization
+# https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#delete-a-self-hosted-runner-from-an-organization
 # https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#delete-a-self-hosted-runner-from-a-repository
 if [[ "${REPOSITORY}" =~ / ]]; then
     ENTITY="repos/${REPOSITORY}"
 else
     ENTITY="orgs/${REPOSITORY}"
 fi
+echo "ENTITY ${ENTITY}"
+
 REG_TOKEN=$(curl -s -X POST -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${ACCESS_TOKEN}" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/${ENTITY}/actions/runners/registration-token | jq .token --raw-output)
+echo "REG_TOKEN ${REG_TOKEN}"
 
 cd $HOME/actions-runner
-sudo mkdir ${RUNNER_WORKSPACE} && sudo chown -R ${USER} ${RUNNER_WORKSPACE}
+sudo mkdir -p ${RUNNER_WORKSPACE} && sudo chown -R ${USER} ${RUNNER_WORKSPACE}
 
 LABELS_OPT=${EXTRA_LABELS:+--labels $EXTRA_LABELS}
 ./config.sh --url https://github.com/${REPOSITORY} --token ${REG_TOKEN} --name ${RUNNER_NAME} ${LABELS_OPT} --work ${RUNNER_WORKSPACE} --replace
@@ -38,6 +41,7 @@ LABELS_OPT=${EXTRA_LABELS:+--labels $EXTRA_LABELS}
 cleanup() {
     echo "Removing runner..."
     REMOVE_TOKEN=$(curl -s -X POST -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${ACCESS_TOKEN}" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/${ENTITY}/actions/runners/remove-token | jq .token --raw-output)
+    echo "REMOVE_TOKEN ${REMOVE_TOKEN}"
     ./config.sh remove --token ${REMOVE_TOKEN}
     sudo rm -rf ${RUNNER_WORKSPACE}
 }
