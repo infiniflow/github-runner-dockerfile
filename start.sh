@@ -2,7 +2,7 @@
 
 REPOSITORY=$REPO
 ACCESS_TOKEN=$TOKEN
-RUNNER_NAME=${HOST_HOSTNAME}-$(hostname)
+RUNNER_NAME=${HOST_HOSTNAME}-$(ip -4 -o addr show scope global | awk '{print $4}' | cut -d'/' -f1 | grep -v '^169\.254\.' | head -n 1 | awk -F'.' '{print $3"."$4}')
 RUNNER_WORKSPACE=${RUNNER_WORKSPACE_PREFIX}/${RUNNER_NAME}
 
 NanoCpus=$(sudo docker inspect $(hostname) | jq -r .[0].HostConfig.NanoCpus)

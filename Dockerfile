@@ -5,10 +5,19 @@ ARG RUNNER_VERSION="2.321.0"
 # Prevents installdependencies.sh from prompting the user and blocking the image creation
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN apt update -y \
-    && apt upgrade -y \
-    && apt install -y --no-install-recommends curl jq build-essential libssl-dev libffi-dev libicu-dev python3 python3-venv python3-dev python3-pip pipx sudo docker.io git gawk sed wget \
-    && apt clean -y
+ARG NEED_MIRROR=0
+
+RUN apt update -y && \
+    apt --no-install-recommends install -y ca-certificates
+
+RUN if [ "$NEED_MIRROR" == "1" ]; then \
+        sed -i 's|http://archive.ubuntu.com|https://mirrors.tuna.tsinghua.edu.cn|g' /etc/apt/sources.list.d/ubuntu.sources; \
+        sed -i 's|http://security.ubuntu.com|https://mirrors.tuna.tsinghua.edu.cn|g' /etc/apt/sources.list.d/ubuntu.sources; \
+        apt update -y; \
+    fi; \
+    apt upgrade -y && \
+    apt install -y --no-install-recommends curl jq build-essential libssl-dev libffi-dev libicu-dev python3 python3-venv python3-dev python3-pip pipx sudo docker.io git gawk sed wget && \
+    apt clean -y
 
 # https://docs.docker.com/engine/install/ubuntu/#install-docker-ce
 RUN apt update -y \
@@ -31,8 +40,16 @@ USER alice
 ENV USER=alice HOME=/home/alice PATH=/home/alice/.local/bin:$PATH
 WORKDIR /home/alice
 
-RUN pipx install poetry && poetry self add poetry-plugin-pypi-mirror
-ENV POETRY_VIRTUALENVS_CREATE=true POETRY_VIRTUALENVS_IN_PROJECT=true POETRY_PYPI_MIRROR_URL=https://pypi.tuna.tsinghua.edu.cn/simple/
+RUN if [ "$NEED_MIRROR" == "1" ]; then \
+        pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple && \
+        pip3 config set global.trusted-host pypi.tuna.tsinghua.edu.cn; \
+    fi; \
+    pipx install poetry; \
+    if [ "$NEED_MIRROR" == "1" ]; then \
+        pipx inject poetry poetry-plugin-pypi-mirror; \
+    fi
+
+ENV POETRY_VIRTUALENVS_CREATE=true POETRY_VIRTUALENVS_IN_PROJECT=true
 
 RUN cd /home/alice \
     && mkdir actions-runner \
