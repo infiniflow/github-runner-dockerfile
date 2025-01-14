@@ -1,6 +1,5 @@
 FROM ubuntu:24.04
-
-ARG RUNNER_VERSION="2.321.0"
+SHELL ["/bin/bash", "-c"]
 
 # Prevents installdependencies.sh from prompting the user and blocking the image creation
 ARG DEBIAN_FRONTEND=noninteractive
@@ -20,15 +19,21 @@ RUN if [ "$NEED_MIRROR" == "1" ]; then \
     apt clean -y
 
 # https://docs.docker.com/engine/install/ubuntu/#install-docker-ce
+# https://developer.aliyun.com/mirror/docker-ce/
 RUN apt update -y \
     && apt purge -y docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc \
     && apt install -y ca-certificates curl \
-    && install -m 0755 -d /etc/apt/keyrings \
-    && curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc \
-    && chmod a+r /etc/apt/keyrings/docker.asc \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null \
-    && apt update -y \
+    && install -m 0755 -d /etc/apt/keyrings; \
+    if [ "$NEED_MIRROR" == "1" ]; then \
+        curl -fsSL https://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc; \
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://mirrors.aliyun.com/docker-ce/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null; \
+    else \
+        curl -fsSL https://download.docker.com/docker-ce/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc; \
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null; \
+    fi; \
+    apt update -y \
     && apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin \
+    && apt autoremove \
     && apt clean -y
 
 RUN useradd -m alice \
@@ -43,20 +48,24 @@ WORKDIR /home/alice
 RUN if [ "$NEED_MIRROR" == "1" ]; then \
         pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple && \
         pip3 config set global.trusted-host pypi.tuna.tsinghua.edu.cn; \
+        mkdir -p /etc/uv && \
+        echo "[[index]]" > /etc/uv/uv.toml && \
+        echo 'url = "https://pypi.tuna.tsinghua.edu.cn/simple"' >> /etc/uv/uv.toml && \
+        echo "default = true" >> /etc/uv/uv.toml; \
     fi; \
-    pipx install poetry; \
+    pipx install uv poetry; \
     if [ "$NEED_MIRROR" == "1" ]; then \
         pipx inject poetry poetry-plugin-pypi-mirror; \
     fi
 
 ENV POETRY_VIRTUALENVS_CREATE=true POETRY_VIRTUALENVS_IN_PROJECT=true
 
-RUN cd /home/alice \
+# curl -O -L https://github.com/actions/runner/releases/download/v2.321.0/actions-runner-linux-x64-2.321.0.tar.gz \
+RUN --mount=type=bind,source=actions-runner-linux-x64-2.321.0.tar.gz,target=/actions-runner.tar.gz \
+    cd /home/alice \
     && mkdir actions-runner \
     && cd actions-runner \
-    && curl -O -L https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz \
-    && tar xzf ./actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz \
-    && rm -f ./actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz \
+    && tar xzf /actions-runner.tar.gz \
     && sudo bin/installdependencies.sh
 
 COPY start.sh start.sh
