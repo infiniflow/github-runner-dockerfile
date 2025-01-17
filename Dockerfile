@@ -13,6 +13,10 @@ RUN if [ "$NEED_MIRROR" == "1" ]; then \
         sed -i 's|http://archive.ubuntu.com|https://mirrors.tuna.tsinghua.edu.cn|g' /etc/apt/sources.list.d/ubuntu.sources; \
         sed -i 's|http://security.ubuntu.com|https://mirrors.tuna.tsinghua.edu.cn|g' /etc/apt/sources.list.d/ubuntu.sources; \
         apt update -y; \
+        mkdir -p /etc/uv && \
+        echo "[[index]]" > /etc/uv/uv.toml && \
+        echo 'url = "https://pypi.tuna.tsinghua.edu.cn/simple"' >> /etc/uv/uv.toml && \
+        echo "default = true" >> /etc/uv/uv.toml; \
     fi; \
     apt upgrade -y && \
     apt install -y --no-install-recommends curl jq build-essential libssl-dev libffi-dev libicu-dev python3 python3-venv python3-dev python3-pip pipx sudo docker.io git gawk sed wget && \
@@ -22,13 +26,15 @@ RUN if [ "$NEED_MIRROR" == "1" ]; then \
 # https://developer.aliyun.com/mirror/docker-ce/
 RUN apt update -y \
     && apt purge -y docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc \
-    && apt install -y ca-certificates curl \
+    && apt install -y ca-certificates curl gnupg \
     && install -m 0755 -d /etc/apt/keyrings; \
     if [ "$NEED_MIRROR" == "1" ]; then \
         curl -fsSL https://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc; \
+        chmod a+r /etc/apt/keyrings/docker.asc; \
         echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://mirrors.aliyun.com/docker-ce/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null; \
     else \
-        curl -fsSL https://download.docker.com/docker-ce/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc; \
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc; \
+        chmod a+r /etc/apt/keyrings/docker.asc; \
         echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null; \
     fi; \
     apt update -y \
@@ -48,12 +54,8 @@ WORKDIR /home/alice
 RUN if [ "$NEED_MIRROR" == "1" ]; then \
         pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple && \
         pip3 config set global.trusted-host pypi.tuna.tsinghua.edu.cn; \
-        mkdir -p /etc/uv && \
-        echo "[[index]]" > /etc/uv/uv.toml && \
-        echo 'url = "https://pypi.tuna.tsinghua.edu.cn/simple"' >> /etc/uv/uv.toml && \
-        echo "default = true" >> /etc/uv/uv.toml; \
     fi; \
-    pipx install uv poetry; \
+    pipx install uv poetry && \
     uv python install python3.10 python3.11 python3.12 python3.13; \
     if [ "$NEED_MIRROR" == "1" ]; then \
         pipx inject poetry poetry-plugin-pypi-mirror; \
