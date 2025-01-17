@@ -54,6 +54,7 @@ RUN if [ "$NEED_MIRROR" == "1" ]; then \
         echo "default = true" >> /etc/uv/uv.toml; \
     fi; \
     pipx install uv poetry; \
+    uv python install python3.10 python3.11 python3.12 python3.13; \
     if [ "$NEED_MIRROR" == "1" ]; then \
         pipx inject poetry poetry-plugin-pypi-mirror; \
     fi
