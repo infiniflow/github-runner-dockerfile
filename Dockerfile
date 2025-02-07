@@ -19,7 +19,7 @@ RUN if [ "$NEED_MIRROR" == "1" ]; then \
         echo "default = true" >> /etc/uv/uv.toml; \
     fi; \
     apt upgrade -y && \
-    apt install -y --no-install-recommends curl jq build-essential libssl-dev libffi-dev libicu-dev python3 python3-venv python3-dev python3-pip pipx sudo docker.io git gawk sed wget && \
+    apt install -y --no-install-recommends curl jq build-essential libssl-dev libffi-dev libicu-dev python3 python3-venv python3-dev python3-pip pipx sudo git gawk sed wget && \
     apt clean -y
 
 # https://docs.docker.com/engine/install/ubuntu/#install-docker-ce
@@ -63,8 +63,8 @@ RUN if [ "$NEED_MIRROR" == "1" ]; then \
 
 ENV POETRY_VIRTUALENVS_CREATE=true POETRY_VIRTUALENVS_IN_PROJECT=true
 
-# curl -O -L https://github.com/actions/runner/releases/download/v2.321.0/actions-runner-linux-x64-2.321.0.tar.gz \
-RUN --mount=type=bind,source=actions-runner-linux-x64-2.321.0.tar.gz,target=/actions-runner.tar.gz \
+# curl -O -L https://github.com/actions/runner/releases/download/v2.322.0/actions-runner-linux-x64-2.322.0.tar.gz \
+RUN --mount=type=bind,source=actions-runner-linux-x64-2.322.0.tar.gz,target=/actions-runner.tar.gz \
     cd /home/alice \
     && mkdir actions-runner \
     && cd actions-runner \
