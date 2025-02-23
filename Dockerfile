@@ -55,13 +55,8 @@ RUN if [ "$NEED_MIRROR" == "1" ]; then \
         pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple && \
         pip3 config set global.trusted-host pypi.tuna.tsinghua.edu.cn; \
     fi; \
-    pipx install uv poetry && \
-    uv python install python3.10 python3.11 python3.12 python3.13; \
-    if [ "$NEED_MIRROR" == "1" ]; then \
-        pipx inject poetry poetry-plugin-pypi-mirror; \
-    fi
-
-ENV POETRY_VIRTUALENVS_CREATE=true POETRY_VIRTUALENVS_IN_PROJECT=true
+    curl -LsSf https://astral.sh/uv/install.sh | sh && \
+    uv python install python3.10 python3.11
 
 # curl -O -L https://github.com/actions/runner/releases/download/v2.322.0/actions-runner-linux-x64-2.322.0.tar.gz \
 RUN --mount=type=bind,source=actions-runner-linux-x64-2.322.0.tar.gz,target=/actions-runner.tar.gz \
