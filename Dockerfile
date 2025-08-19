@@ -58,8 +58,8 @@ RUN if [ "$NEED_MIRROR" == "1" ]; then \
     curl -LsSf https://astral.sh/uv/install.sh | sh && \
     uv python install python3.10 python3.11
 
-# curl -O -L https://github.com/actions/runner/releases/download/v2.327.0/actions-runner-linux-x64-2.327.0.tar.gz
-RUN --mount=type=bind,source=actions-runner-linux-x64-2.327.0.tar.gz,target=/actions-runner.tar.gz \
+# curl -O -L https://github.com/actions/runner/releases/download/v2.328.0/actions-runner-linux-x64-2.328.0.tar.gz
+RUN --mount=type=bind,source=actions-runner-linux-x64-2.328.0.tar.gz,target=/actions-runner.tar.gz \
     cd /home/alice \
     && mkdir actions-runner \
     && cd actions-runner \
