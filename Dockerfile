@@ -19,28 +19,15 @@ RUN if [ "$NEED_MIRROR" == "1" ]; then \
         echo "default = true" >> /etc/uv/uv.toml; \
     fi; \
     apt upgrade -y && \
-    apt install -y --no-install-recommends curl jq build-essential libssl-dev libffi-dev libicu-dev python3 python3-venv python3-dev python3-pip pipx sudo git gawk sed wget && \
+    apt install -y --no-install-recommends curl jq build-essential libssl-dev libffi-dev libicu-dev python3 python3-venv python3-dev python3-pip pipx sudo git gh gawk sed wget && \
     apt clean -y
 
-# https://docs.docker.com/engine/install/ubuntu/#install-docker-ce
-# https://developer.aliyun.com/mirror/docker-ce/
-RUN apt update -y \
-    && apt purge -y docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc \
-    && apt install -y ca-certificates curl gnupg \
-    && install -m 0755 -d /etc/apt/keyrings; \
-    if [ "$NEED_MIRROR" == "1" ]; then \
-        curl -fsSL https://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc; \
-        chmod a+r /etc/apt/keyrings/docker.asc; \
-        echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://mirrors.aliyun.com/docker-ce/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null; \
-    else \
-        curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc; \
-        chmod a+r /etc/apt/keyrings/docker.asc; \
-        echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null; \
-    fi; \
-    apt update -y \
-    && apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin \
-    && apt autoremove \
-    && apt clean -y
+# Install Docker
+# curl -O -L https://download.docker.com/linux/static/stable/x86_64/docker-28.4.0.tgz
+RUN --mount=type=bind,source=docker-28.4.0.tgz,target=/root/docker-28.4.0.tgz \
+    cd /root \
+    && tar zxf docker-28.4.0.tgz \
+    && cp docker/* /usr/bin
 
 RUN useradd -m alice \
     && echo "alice      ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/alice
