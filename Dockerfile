@@ -22,12 +22,27 @@ RUN if [ "$NEED_MIRROR" == "1" ]; then \
     apt install -y --no-install-recommends curl jq build-essential libssl-dev libffi-dev libicu-dev python3 python3-venv python3-dev python3-pip pipx sudo git gh gawk sed wget gpg && \
     apt clean -y
 
-# Install Docker
+# Install docker
 # curl -O -L https://download.docker.com/linux/static/stable/x86_64/docker-28.4.0.tgz
 RUN --mount=type=bind,source=docker-28.4.0.tgz,target=/root/docker-28.4.0.tgz \
     cd /root \
     && tar zxf docker-28.4.0.tgz \
-    && cp docker/* /usr/bin
+    && cp docker/* /usr/bin/ \
+    && rm -rf docker
+
+# Install docker-buildx
+# curl -O -L https://github.com/docker/buildx/releases/download/v0.29.0/buildx-v0.29.0.linux-amd64
+RUN --mount=type=bind,source=buildx-v0.29.0.linux-amd64,target=/root/buildx-v0.29.0.linux-amd64 \
+    mkdir -p /usr/lib/docker/cli-plugins \
+    && cp /root/buildx-v0.29.0.linux-amd64 /usr/lib/docker/cli-plugins/docker-buildx \
+    && chmod +x /usr/lib/docker/cli-plugins/docker-buildx
+
+# Install docker-compose
+# curl -O -L https://github.com/docker/compose/releases/download/v2.39.4/docker-compose-linux-x86_64
+RUN --mount=type=bind,source=docker-compose-linux-x86_64,target=/root/docker-compose-linux-x86_64 \
+    mkdir -p /usr/lib/docker/cli-plugins \
+    && cp /root/docker-compose-linux-x86_64 /usr/lib/docker/cli-plugins/docker-compose \
+    && chmod +x /usr/lib/docker/cli-plugins/docker-compose
 
 RUN useradd -m alice \
     && echo "alice      ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/alice
