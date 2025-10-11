@@ -44,6 +44,12 @@ RUN --mount=type=bind,source=docker-compose-linux-x86_64,target=/root/docker-com
     && cp /root/docker-compose-linux-x86_64 /usr/lib/docker/cli-plugins/docker-compose \
     && chmod +x /usr/lib/docker/cli-plugins/docker-compose
 
+# https://docs.codecov.com/docs/codecov-uploader
+# curl -Os https://cli.codecov.io/latest/linux/codecov
+RUN --mount=type=bind,source=codecov,target=/root/codecov \
+    cp /root/codecov /usr/bin/ \
+    && chmod +x /usr/bin/codecov
+
 RUN useradd -m alice \
     && echo "alice      ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/alice
 
