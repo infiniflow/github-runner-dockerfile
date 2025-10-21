@@ -23,22 +23,22 @@ RUN if [ "$NEED_MIRROR" == "1" ]; then \
     apt clean -y
 
 # Install docker
-# curl -O -L https://download.docker.com/linux/static/stable/x86_64/docker-28.4.0.tgz
-RUN --mount=type=bind,source=docker-28.4.0.tgz,target=/root/docker-28.4.0.tgz \
+# curl -O -L https://download.docker.com/linux/static/stable/x86_64/docker-28.5.1.tgz
+RUN --mount=type=bind,source=docker-28.5.1.tgz,target=/root/docker-28.5.1.tgz \
     cd /root \
-    && tar zxf docker-28.4.0.tgz \
+    && tar zxf docker-28.5.1.tgz \
     && cp docker/* /usr/bin/ \
     && rm -rf docker
 
 # Install docker-buildx
-# curl -O -L https://github.com/docker/buildx/releases/download/v0.29.0/buildx-v0.29.0.linux-amd64
-RUN --mount=type=bind,source=buildx-v0.29.0.linux-amd64,target=/root/buildx-v0.29.0.linux-amd64 \
+# curl -O -L https://github.com/docker/buildx/releases/download/v0.29.1/buildx-v0.29.1.linux-amd64
+RUN --mount=type=bind,source=buildx-v0.29.1.linux-amd64,target=/root/buildx-v0.29.1.linux-amd64 \
     mkdir -p /usr/lib/docker/cli-plugins \
-    && cp /root/buildx-v0.29.0.linux-amd64 /usr/lib/docker/cli-plugins/docker-buildx \
+    && cp /root/buildx-v0.29.1.linux-amd64 /usr/lib/docker/cli-plugins/docker-buildx \
     && chmod +x /usr/lib/docker/cli-plugins/docker-buildx
 
 # Install docker-compose
-# curl -O -L https://github.com/docker/compose/releases/download/v2.39.4/docker-compose-linux-x86_64
+# curl -O -L https://github.com/docker/compose/releases/download/v2.40.1/docker-compose-linux-x86_64
 RUN --mount=type=bind,source=docker-compose-linux-x86_64,target=/root/docker-compose-linux-x86_64 \
     mkdir -p /usr/lib/docker/cli-plugins \
     && cp /root/docker-compose-linux-x86_64 /usr/lib/docker/cli-plugins/docker-compose \
@@ -66,8 +66,8 @@ RUN if [ "$NEED_MIRROR" == "1" ]; then \
     curl -LsSf https://astral.sh/uv/install.sh | sh && \
     uv python install python3.10 python3.11
 
-# curl -O -L https://github.com/actions/runner/releases/download/v2.328.0/actions-runner-linux-x64-2.328.0.tar.gz
-RUN --mount=type=bind,source=actions-runner-linux-x64-2.328.0.tar.gz,target=/actions-runner.tar.gz \
+# curl -O -L https://github.com/actions/runner/releases/download/v2.329.0/actions-runner-linux-x64-2.329.0.tar.gz
+RUN --mount=type=bind,source=actions-runner-linux-x64-2.329.0.tar.gz,target=/actions-runner.tar.gz \
     cd /home/alice \
     && mkdir actions-runner \
     && cd actions-runner \
