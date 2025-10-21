@@ -64,7 +64,8 @@ RUN if [ "$NEED_MIRROR" == "1" ]; then \
         pip3 config set global.trusted-host pypi.tuna.tsinghua.edu.cn; \
     fi; \
     curl -LsSf https://astral.sh/uv/install.sh | sh && \
-    uv python install python3.10 python3.11
+    uv python install python3.10 python3.11 && \
+    uv tool install twine
 
 # curl -O -L https://github.com/actions/runner/releases/download/v2.329.0/actions-runner-linux-x64-2.329.0.tar.gz
 RUN --mount=type=bind,source=actions-runner-linux-x64-2.329.0.tar.gz,target=/actions-runner.tar.gz \
