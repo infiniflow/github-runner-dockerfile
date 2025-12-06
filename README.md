@@ -4,11 +4,7 @@ Dockerfile for the creation of a GitHub Actions runner image to be deployed dyna
 To build the runner image:
 
 ```
-$ curl -O -L https://github.com/actions/runner/releases/download/v2.330.0/actions-runner-linux-x64-2.330.0.tar.gz
-$ curl -O -L https://download.docker.com/linux/static/stable/x86_64/docker-29.0.2.tgz
-$ curl -O -L https://github.com/docker/buildx/releases/download/v0.30.1/buildx-v0.30.1.linux-amd64
-# curl -O -L https://github.com/docker/compose/releases/download/v2.40.3/docker-compose-linux-x86_64
-$ curl -Os https://cli.codecov.io/latest/linux/codecov
+$ uv run download_deps.py
 $ docker build --build-arg NEED_MIRROR=1 -t infiniflow/github_action_runner .
 ```
 
