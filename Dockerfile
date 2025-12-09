@@ -14,7 +14,7 @@ RUN if [ "$NEED_MIRROR" == "1" ]; then \
         sed -i 's|http://security.ubuntu.com|https://mirrors.tuna.tsinghua.edu.cn|g' /etc/apt/sources.list.d/ubuntu.sources; \
         apt update -y; \
         mkdir -p /etc/uv; \
-        echo 'python-install-mirror = "https://mirror.nju.edu.cn/github-release/astral-sh/python-build-standalone/"' > /etc/uv/uv.toml; \
+        echo 'python-install-mirror = "https://registry.npmmirror.com/-/binary/python-build-standalone/"' > /etc/uv/uv.toml; \
         echo "[[index]]" >> /etc/uv/uv.toml; \
         echo 'url = "https://pypi.tuna.tsinghua.edu.cn/simple"' >> /etc/uv/uv.toml; \
         echo "default = true" >> /etc/uv/uv.toml; \
