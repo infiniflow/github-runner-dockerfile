@@ -33,6 +33,13 @@ RUN wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | tee /etc/apt/trusted.
     apt install -y llvm-20 && \
     apt clean -y
 
+# Install Go for running Go tests
+ARG GO_VERSION=1.26.0
+RUN curl -L https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz -o go.tar.gz \
+    && tar -C /usr/local -xzf go.tar.gz \
+    && rm go.tar.gz
+ENV PATH="/usr/local/go/bin:${PATH}"
+
 # Install docker
 RUN --mount=type=bind,source=docker-29.0.2.tgz,target=/root/docker-29.0.2.tgz \
     cd /root \
@@ -80,9 +87,14 @@ ENV USER=alice HOME=/home/alice PATH=/home/alice/.local/bin:$PATH
 
 WORKDIR /home/alice
 
+RUN if [ "$NEED_MIRROR" == "1" ]; then \
+        go env -w GOPROXY=https://goproxy.cn,https://goproxy.io,https://proxy.golang.org,direct; \
+    fi && \
+    go mod download github.com/apache/thrift@v0.22.0
+
 RUN uv python install 3.10 3.11 3.12 3.13 3.14
 
-RUN --mount=type=bind,source=actions-runner-linux-x64-2.330.0.tar.gz,target=/actions-runner.tar.gz \
+RUN --mount=type=bind,source=actions-runner-linux-x64-2.331.0.tar.gz,target=/actions-runner.tar.gz \
     cd /home/alice \
     && mkdir actions-runner \
     && cd actions-runner \
