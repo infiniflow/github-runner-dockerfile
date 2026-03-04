@@ -84,7 +84,7 @@ def main() -> int:
         "https://cli.codecov.io/latest/linux/codecov",
         "https://github.com/astral-sh/uv/releases/download/0.9.15/uv-x86_64-unknown-linux-gnu.tar.gz",
         "https://github.com/risinglightdb/sqllogictest-rs/releases/download/v0.28.4/sqllogictest-bin-v0.28.4-x86_64-unknown-linux-musl.tar.gz",
-        "https://github.com/actions/runner/releases/download/v2.330.0/actions-runner-linux-x64-2.331.0.tar.gz",
+        "https://github.com/actions/runner/releases/download/v2.332.0/actions-runner-linux-x64-2.332.0.tar.gz",
     ]
 
     for url in urls:
