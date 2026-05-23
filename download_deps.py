@@ -78,13 +78,15 @@ def main() -> int:
     ensure_project_root()
 
     urls = [
-        "https://download.docker.com/linux/static/stable/x86_64/docker-29.0.2.tgz",
-        "https://github.com/docker/buildx/releases/download/v0.30.1/buildx-v0.30.1.linux-amd64",
-        "https://github.com/docker/compose/releases/download/v2.40.3/docker-compose-linux-x86_64",
-        "https://cli.codecov.io/latest/linux/codecov",
-        "https://github.com/astral-sh/uv/releases/download/0.9.15/uv-x86_64-unknown-linux-gnu.tar.gz",
-        "https://github.com/risinglightdb/sqllogictest-rs/releases/download/v0.28.4/sqllogictest-bin-v0.28.4-x86_64-unknown-linux-musl.tar.gz",
-        "https://github.com/actions/runner/releases/download/v2.332.0/actions-runner-linux-x64-2.332.0.tar.gz",
+        "https://download.docker.com/linux/static/stable/x86_64/docker-29.4.0.tgz",
+        "https://github.com/docker/buildx/releases/download/v0.34.1/buildx-v0.34.1.linux-amd64",
+        "https://github.com/docker/compose/releases/download/v5.1.4/docker-compose-linux-x86_64",
+        "https://github.com/getsentry/prevent-cli/releases/download/v11.2.8/codecovcli_linux",
+        "https://github.com/astral-sh/uv/releases/download/0.11.16/uv-x86_64-unknown-linux-gnu.tar.gz",
+        "https://github.com/risinglightdb/sqllogictest-rs/releases/download/v0.29.1/sqllogictest-bin-v0.29.1-x86_64-unknown-linux-musl.tar.gz",
+        "https://golang.google.cn/dl/go1.26.3.linux-amd64.tar.gz",
+        "https://github.com/stripe/stripe-cli/releases/download/v1.41.2/stripe_1.41.2_linux_x86_64.tar.gz",
+        "https://github.com/actions/runner/releases/download/v2.334.0/actions-runner-linux-x64-2.334.0.tar.gz",
     ]
 
     for url in urls:

@@ -34,23 +34,21 @@ RUN wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | tee /etc/apt/trusted.
     apt clean -y
 
 # Install Go for running Go tests
-ARG GO_VERSION=1.26.0
-RUN curl -L https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz -o go.tar.gz \
-    && tar -C /usr/local -xzf go.tar.gz \
-    && rm go.tar.gz
+RUN --mount=type=bind,source=go1.26.3.linux-amd64.tar.gz,target=/root/go1.26.3.linux-amd64.tar.gz \
+    tar -C /usr/local -xzf /root/go1.26.3.linux-amd64.tar.gz
 ENV PATH="/usr/local/go/bin:${PATH}"
 
 # Install docker
-RUN --mount=type=bind,source=docker-29.0.2.tgz,target=/root/docker-29.0.2.tgz \
+RUN --mount=type=bind,source=docker-29.4.0.tgz,target=/root/docker-29.4.0.tgz \
     cd /root \
-    && tar zxf docker-29.0.2.tgz \
+    && tar zxf docker-29.4.0.tgz \
     && cp docker/* /usr/bin/ \
     && rm -rf docker
 
 # Install docker-buildx
-RUN --mount=type=bind,source=buildx-v0.30.1.linux-amd64,target=/root/buildx-v0.30.1.linux-amd64 \
+RUN --mount=type=bind,source=buildx-v0.34.1.linux-amd64,target=/root/buildx-v0.34.1.linux-amd64 \
     mkdir -p /usr/lib/docker/cli-plugins \
-    && cp /root/buildx-v0.30.1.linux-amd64 /usr/lib/docker/cli-plugins/docker-buildx \
+    && cp /root/buildx-v0.34.1.linux-amd64 /usr/lib/docker/cli-plugins/docker-buildx \
     && chmod +x /usr/lib/docker/cli-plugins/docker-buildx
 
 # Install docker-compose
@@ -66,13 +64,17 @@ RUN --mount=type=bind,source=uv-x86_64-unknown-linux-gnu.tar.gz,target=/root/uv-
     && rm -rf uv-x86_64-unknown-linux-gnu
 
 # Install sqllogictest
-RUN --mount=type=bind,source=sqllogictest-bin-v0.28.4-x86_64-unknown-linux-musl.tar.gz,target=/root/sqllogictest-bin-v0.28.4-x86_64-unknown-linux-musl.tar.gz \
-    cd /tmp && tar xzf /root/sqllogictest-bin-v0.28.4-x86_64-unknown-linux-musl.tar.gz && cp -rf sqllogictest /usr/local/bin && rm -fr /tmp/*
+RUN --mount=type=bind,source=sqllogictest-bin-v0.29.1-x86_64-unknown-linux-musl.tar.gz,target=/root/sqllogictest-bin-v0.29.1-x86_64-unknown-linux-musl.tar.gz \
+    cd /tmp && tar xzf /root/sqllogictest-bin-v0.29.1-x86_64-unknown-linux-musl.tar.gz && cp -rf sqllogictest /usr/local/bin && rm -fr /tmp/*
 
 # Install codecov
-RUN --mount=type=bind,source=codecov,target=/root/codecov \
-    cp /root/codecov /usr/bin/ \
+RUN --mount=type=bind,source=codecovcli_linux,target=/root/codecovcli_linux \
+    cp /root/codecovcli_linux /usr/bin/codecov \
     && chmod +x /usr/bin/codecov
+
+# Install stripe-cli
+RUN --mount=type=bind,source=stripe_1.41.2_linux_x86_64.tar.gz,target=/root/stripe_1.41.2_linux_x86_64.tar.gz \
+    cd /tmp && tar xzf /root/stripe_1.41.2_linux_x86_64.tar.gz && cp stripe /usr/local/bin/ && rm -fr /tmp/*
 
 # Copy NLTK data
 COPY nltk_data /usr/share/nltk_data
@@ -92,9 +94,9 @@ RUN if [ "$NEED_MIRROR" == "1" ]; then \
     fi && \
     go mod download github.com/apache/thrift@v0.22.0
 
-RUN uv python install 3.10 3.11 3.12 3.13 3.14
+RUN uv python install 3.12 3.13 3.14
 
-RUN --mount=type=bind,source=actions-runner-linux-x64-2.332.0.tar.gz,target=/actions-runner.tar.gz \
+RUN --mount=type=bind,source=actions-runner-linux-x64-2.334.0.tar.gz,target=/actions-runner.tar.gz \
     cd /home/alice \
     && mkdir actions-runner \
     && cd actions-runner \
