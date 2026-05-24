@@ -76,6 +76,14 @@ RUN --mount=type=bind,source=codecovcli_linux,target=/root/codecovcli_linux \
 RUN --mount=type=bind,source=stripe_1.41.2_linux_x86_64.tar.gz,target=/root/stripe_1.41.2_linux_x86_64.tar.gz \
     cd /tmp && tar xzf /root/stripe_1.41.2_linux_x86_64.tar.gz && cp stripe /usr/local/bin/ && rm -fr /tmp/*
 
+# Install kubectl
+RUN --mount=type=bind,source=kubectl-v1.36.0,target=/root/kubectl-v1.36.0 \
+    install -o root -g root -m 0755 /root/kubectl-v1.36.0 /usr/local/bin/kubectl
+
+# Install tofu
+RUN --mount=type=bind,source=tofu_1.12.0_linux_amd64.tar.gz,target=/root/tofu_1.12.0_linux_amd64.tar.gz \
+    cd /tmp && tar xzf /root/tofu_1.12.0_linux_amd64.tar.gz && cp tofu /usr/local/bin/ && rm -fr /tmp/*
+
 # Copy NLTK data
 COPY nltk_data /usr/share/nltk_data
 

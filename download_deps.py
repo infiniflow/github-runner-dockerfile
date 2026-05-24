@@ -87,10 +87,15 @@ def main() -> int:
         "https://golang.google.cn/dl/go1.26.3.linux-amd64.tar.gz",
         "https://github.com/stripe/stripe-cli/releases/download/v1.41.2/stripe_1.41.2_linux_x86_64.tar.gz",
         "https://github.com/actions/runner/releases/download/v2.334.0/actions-runner-linux-x64-2.334.0.tar.gz",
+        ["https://dl.k8s.io/release/v1.36.0/bin/linux/amd64/kubectl", "kubectl-v1.36.0"],
+        "https://github.com/opentofu/opentofu/releases/download/v1.12.0/tofu_1.12.0_linux_amd64.tar.gz",
     ]
-
-    for url in urls:
-        rc = download(url)
+    for item in urls:
+        if isinstance(item, list):
+            url, filename = item
+            rc = download(url, filename)
+        else:
+            rc = download(item)
         if rc != 0:
             return rc
 
