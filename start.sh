@@ -4,6 +4,17 @@ REPOSITORY=$REPO
 ACCESS_TOKEN=$MY_GH_TOKEN
 RUNNER_NAME=${HOST_HOSTNAME}-$(hostname)
 RUNNER_WORKSPACE=${RUNNER_WORKSPACE_PREFIX}/${RUNNER_NAME}
+KUBE_CONFIG_FILE=${KUBE_CONFIG_FILE:-/runner-secrets/kubeconfig}
+
+if [[ -f "${KUBE_CONFIG_FILE}" ]]; then
+    export KUBECONFIG="${KUBE_CONFIG_FILE}"
+    export KUBE_CONFIG="$(cat "${KUBE_CONFIG_FILE}")"
+    echo "Loaded kubeconfig from ${KUBE_CONFIG_FILE}"
+else
+    unset KUBECONFIG
+    unset KUBE_CONFIG
+    echo "No kubeconfig file found at ${KUBE_CONFIG_FILE}; continuing without Kubernetes context"
+fi
 
 NanoCpus=$(sudo docker inspect $(hostname) | jq -r .[0].HostConfig.NanoCpus)
 if [ "$NanoCpus" -eq 0 ]; then
@@ -16,6 +27,7 @@ echo "REPO ${REPOSITORY}"
 echo "ACCESS_TOKEN ${ACCESS_TOKEN}"
 echo "EXTRA_LABELS ${EXTRA_LABELS}"
 echo "RUNNER_WORKSPACE ${RUNNER_WORKSPACE}"
+echo "KUBECONFIG ${KUBECONFIG:-<unset>}"
 echo "CPUS ${CPUS}"
 
 # https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#create-a-registration-token-for-an-organization

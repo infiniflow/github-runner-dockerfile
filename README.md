@@ -18,12 +18,15 @@ A sample `.env` looks like:
 
 ```
 REPO=infiniflow/ragflow
-TOKEN=ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+MY_GH_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 EXTRA_LABELS=overseas
 HOST_HOSTNAME=ragflow04
 RUNNER_WORKSPACE_PREFIX=/opt/runners_work
 TZ=Asia/Shanghai
+KUBE_CONFIG_PATH=/home/infiniflow/.kube/config
 ```
+
+If the runner needs Kubernetes access, store a valid kubeconfig on the host and expose it with `KUBE_CONFIG_PATH`. The runner will mount that file read-only and export both `KUBECONFIG` and `KUBE_CONFIG` from it at startup.
 
 To start the runner:
 
