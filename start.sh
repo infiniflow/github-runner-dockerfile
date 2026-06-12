@@ -4,16 +4,15 @@ REPOSITORY=$REPO
 ACCESS_TOKEN=$MY_GH_TOKEN
 RUNNER_NAME=${HOST_HOSTNAME}-$(hostname)
 RUNNER_WORKSPACE=${RUNNER_WORKSPACE_PREFIX}/${RUNNER_NAME}
-KUBE_CONFIG_FILE=${KUBE_CONFIG_FILE:-/runner-secrets/kubeconfig}
+KUBECONFIG=${KUBECONFIG:-/runner-secrets/kubeconfig}
 
-if [[ -f "${KUBE_CONFIG_FILE}" ]]; then
-    export KUBECONFIG="${KUBE_CONFIG_FILE}"
-    export KUBE_CONFIG="$(cat "${KUBE_CONFIG_FILE}")"
-    echo "Loaded kubeconfig from ${KUBE_CONFIG_FILE}"
+if [[ -f "${KUBECONFIG}" ]]; then
+    export KUBE_CONFIG="$(cat "${KUBECONFIG}")"
+    echo "Loaded kubeconfig from ${KUBECONFIG}"
 else
     unset KUBECONFIG
     unset KUBE_CONFIG
-    echo "No kubeconfig file found at ${KUBE_CONFIG_FILE}; continuing without Kubernetes context"
+    echo "No kubeconfig file found at ${KUBECONFIG}; continuing without Kubernetes context"
 fi
 
 NanoCpus=$(sudo docker inspect $(hostname) | jq -r .[0].HostConfig.NanoCpus)

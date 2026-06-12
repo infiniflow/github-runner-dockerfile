@@ -19,7 +19,7 @@ services:
         hard: 262144
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 2
       resources:
         limits:
           cpus: '12.0'
@@ -30,4 +30,3 @@ services:
         delay: 5s
         max_attempts: 3
         window: 120s
-    

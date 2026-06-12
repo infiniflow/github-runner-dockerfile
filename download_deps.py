@@ -86,7 +86,7 @@ def main() -> int:
         "https://github.com/risinglightdb/sqllogictest-rs/releases/download/v0.29.1/sqllogictest-bin-v0.29.1-x86_64-unknown-linux-musl.tar.gz",
         "https://golang.google.cn/dl/go1.26.3.linux-amd64.tar.gz",
         "https://github.com/stripe/stripe-cli/releases/download/v1.41.2/stripe_1.41.2_linux_x86_64.tar.gz",
-        "https://github.com/actions/runner/releases/download/v2.334.0/actions-runner-linux-x64-2.334.0.tar.gz",
+        "https://github.com/actions/runner/releases/download/v2.335.1/actions-runner-linux-x64-2.335.1.tar.gz",
         ["https://dl.k8s.io/release/v1.36.0/bin/linux/amd64/kubectl", "kubectl-v1.36.0"],
         "https://github.com/opentofu/opentofu/releases/download/v1.12.0/tofu_1.12.0_linux_amd64.tar.gz",
     ]
