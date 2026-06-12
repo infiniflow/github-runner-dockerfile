@@ -34,14 +34,14 @@ RUN wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | tee /etc/apt/trusted.
     apt clean -y
 
 # Install Go for running Go tests
-RUN --mount=type=bind,source=go1.26.3.linux-amd64.tar.gz,target=/root/go1.26.3.linux-amd64.tar.gz \
-    tar -C /usr/local -xzf /root/go1.26.3.linux-amd64.tar.gz
+RUN --mount=type=bind,source=go1.26.4.linux-amd64.tar.gz,target=/root/go1.26.4.linux-amd64.tar.gz \
+    tar -C /usr/local -xzf /root/go1.26.4.linux-amd64.tar.gz
 ENV PATH="/usr/local/go/bin:${PATH}"
 
 # Install docker
-RUN --mount=type=bind,source=docker-29.4.0.tgz,target=/root/docker-29.4.0.tgz \
+RUN --mount=type=bind,source=docker-29.5.3.tgz,target=/root/docker-29.5.3.tgz \
     cd /root \
-    && tar zxf docker-29.4.0.tgz \
+    && tar zxf docker-29.5.3.tgz \
     && cp docker/* /usr/bin/ \
     && rm -rf docker
 
@@ -73,16 +73,16 @@ RUN --mount=type=bind,source=codecovcli_linux,target=/root/codecovcli_linux \
     && chmod +x /usr/bin/codecov
 
 # Install stripe-cli
-RUN --mount=type=bind,source=stripe_1.41.2_linux_x86_64.tar.gz,target=/root/stripe_1.41.2_linux_x86_64.tar.gz \
-    cd /tmp && tar xzf /root/stripe_1.41.2_linux_x86_64.tar.gz && cp stripe /usr/local/bin/ && rm -fr /tmp/*
+RUN --mount=type=bind,source=stripe_1.42.11_linux_x86_64.tar.gz,target=/root/stripe_1.42.11_linux_x86_64.tar.gz \
+    cd /tmp && tar xzf /root/stripe_1.42.11_linux_x86_64.tar.gz && cp stripe /usr/local/bin/ && rm -fr /tmp/*
 
 # Install kubectl
-RUN --mount=type=bind,source=kubectl-v1.36.0,target=/root/kubectl-v1.36.0 \
-    install -o root -g root -m 0755 /root/kubectl-v1.36.0 /usr/local/bin/kubectl
+RUN --mount=type=bind,source=kubectl-v1.36.1,target=/root/kubectl-v1.36.1 \
+    install -o root -g root -m 0755 /root/kubectl-v1.36.1 /usr/local/bin/kubectl
 
 # Install tofu
-RUN --mount=type=bind,source=tofu_1.12.0_linux_amd64.tar.gz,target=/root/tofu_1.12.0_linux_amd64.tar.gz \
-    cd /tmp && tar xzf /root/tofu_1.12.0_linux_amd64.tar.gz && cp tofu /usr/local/bin/ && rm -fr /tmp/*
+RUN --mount=type=bind,source=tofu_1.12.1_linux_amd64.tar.gz,target=/root/tofu_1.12.1_linux_amd64.tar.gz \
+    cd /tmp && tar xzf /root/tofu_1.12.1_linux_amd64.tar.gz && cp tofu /usr/local/bin/ && rm -fr /tmp/*
 
 # Copy NLTK data
 COPY nltk_data /usr/share/nltk_data
