@@ -42,6 +42,24 @@ ENV PATH="/usr/local/go/bin:${PATH}"
 RUN --mount=type=bind,source=node-v22.23.1-linux-x64.tar.xz,target=/root/node-v22.23.1-linux-x64.tar.xz \
     tar -C /usr/local -xJf /root/node-v22.23.1-linux-x64.tar.xz --strip-components=1
 
+# Install web lint/format toolchain (consumed by lefthook web-eslint / web-prettier hooks).
+# Versions match web/package.json so image behavior stays aligned with what
+# `npm ci --include=dev` in web/ would have produced.
+RUN if [ "$NEED_MIRROR" == "1" ]; then \
+        npm config set registry https://registry.npmmirror.com; \
+    fi && \
+    npm install -g --no-audit --no-fund \
+        "eslint@^8.56.0" \
+        "@typescript-eslint/parser@^8.52.0" \
+        "@typescript-eslint/eslint-plugin@^8.52.0" \
+        "eslint-plugin-react@^7.37.5" \
+        "eslint-plugin-react-hooks@^4.6.0" \
+        "eslint-plugin-react-refresh@^0.4.26" \
+        "eslint-plugin-check-file@^2.8.0" \
+        "prettier@^3.2.4" \
+        "prettier-plugin-organize-imports@^3.2.4" \
+        "prettier-plugin-packagejson@^2.4.9"
+
 # Install docker
 RUN --mount=type=bind,source=docker-29.6.1.tgz,target=/root/docker-29.6.1.tgz \
     cd /root \
