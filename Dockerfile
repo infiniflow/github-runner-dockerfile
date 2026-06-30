@@ -87,7 +87,9 @@ RUN --mount=type=bind,source=uv-x86_64-unknown-linux-gnu.tar.gz,target=/root/uv-
 
 # Install ruff (Python linter/formatter, used by lefthook pre-commit hooks)
 RUN --mount=type=bind,source=ruff-x86_64-unknown-linux-gnu.tar.gz,target=/root/ruff-x86_64-unknown-linux-gnu.tar.gz \
-    tar -C /usr/local/bin -xzf /root/ruff-x86_64-unknown-linux-gnu.tar.gz
+    tar xzf /root/ruff-x86_64-unknown-linux-gnu.tar.gz \
+    && cp ruff-x86_64-unknown-linux-gnu/* /usr/local/bin/ \
+    && rm -rf ruff-x86_64-unknown-linux-gnu
 
 # Install sqllogictest
 RUN --mount=type=bind,source=sqllogictest-bin-v0.29.1-x86_64-unknown-linux-musl.tar.gz,target=/root/sqllogictest-bin-v0.29.1-x86_64-unknown-linux-musl.tar.gz \
