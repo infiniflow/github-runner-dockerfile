@@ -78,17 +78,20 @@ def main() -> int:
     ensure_project_root()
 
     urls = [
-        "https://download.docker.com/linux/static/stable/x86_64/docker-29.5.3.tgz",
-        "https://github.com/docker/buildx/releases/download/v0.34.1/buildx-v0.34.1.linux-amd64",
-        "https://github.com/docker/compose/releases/download/v5.1.4/docker-compose-linux-x86_64",
+        "https://download.docker.com/linux/static/stable/x86_64/docker-29.6.1.tgz",
+        "https://github.com/docker/buildx/releases/download/v0.35.0/buildx-v0.35.0.linux-amd64",
+        "https://github.com/docker/compose/releases/download/v5.2.0/docker-compose-linux-x86_64",
         "https://github.com/getsentry/prevent-cli/releases/download/v11.2.8/codecovcli_linux",
-        "https://github.com/astral-sh/uv/releases/download/0.11.21/uv-x86_64-unknown-linux-gnu.tar.gz",
+        "https://github.com/astral-sh/uv/releases/download/0.11.25/uv-x86_64-unknown-linux-gnu.tar.gz",
+        "https://github.com/astral-sh/ruff/releases/download/0.15.20/ruff-x86_64-unknown-linux-gnu.tar.gz",
         "https://github.com/risinglightdb/sqllogictest-rs/releases/download/v0.29.1/sqllogictest-bin-v0.29.1-x86_64-unknown-linux-musl.tar.gz",
         "https://go.dev/dl/go1.26.4.linux-amd64.tar.gz",
-        "https://github.com/stripe/stripe-cli/releases/download/v1.42.11/stripe_1.42.11_linux_x86_64.tar.gz",
+        "https://nodejs.org/dist/v22.23.1/node-v22.23.1-linux-x64.tar.xz",
+        "https://github.com/stripe/stripe-cli/releases/download/v1.43.2/stripe_1.43.2_linux_x86_64.tar.gz",
         "https://github.com/actions/runner/releases/download/v2.335.1/actions-runner-linux-x64-2.335.1.tar.gz",
         ["https://dl.k8s.io/release/v1.36.1/bin/linux/amd64/kubectl", "kubectl-v1.36.1"],
-        "https://github.com/opentofu/opentofu/releases/download/v1.12.1/tofu_1.12.1_linux_amd64.tar.gz",
+        "https://github.com/opentofu/opentofu/releases/download/v1.12.3/tofu_1.12.3_linux_amd64.tar.gz",
+        "https://github.com/evilmartians/lefthook/releases/download/v2.1.9/lefthook_2.1.9_Linux_x86_64.gz",
     ]
     for item in urls:
         if isinstance(item, list):
