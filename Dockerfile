@@ -30,7 +30,7 @@ RUN wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | tee /etc/apt/trusted.
         echo "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-20 main" >> /etc/apt/sources.list; \
     fi && \
     apt update && \
-    apt install -y llvm-20 && \
+    apt install -y llvm-20 lld-20 && \
     ln -s /usr/bin/ld.lld-20 /usr/bin/ld.lld && \
     apt clean -y
 
