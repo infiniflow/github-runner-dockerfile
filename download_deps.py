@@ -92,6 +92,13 @@ def main() -> int:
         ["https://dl.k8s.io/release/v1.36.1/bin/linux/amd64/kubectl", "kubectl-v1.36.1"],
         "https://github.com/opentofu/opentofu/releases/download/v1.12.3/tofu_1.12.3_linux_amd64.tar.gz",
         "https://github.com/evilmartians/lefthook/releases/download/v2.1.9/lefthook_2.1.9_Linux_x86_64.gz",
+        # Native static libraries for Go build (pdfium, pdf_oxide, office_oxide)
+        ["https://github.com/kognitos/pdfium-static/releases/download/chromium%2F7809/pdfium-linux-x64-static.tgz",
+         "pdfium-linux-x64-static.tgz"],
+        ["https://github.com/yfedoseev/pdf_oxide/releases/download/v0.3.67/pdf_oxide-go-ffi-linux-amd64.tar.gz",
+         "pdf_oxide-go-ffi-linux-amd64.tar.gz"],
+        ["https://github.com/yfedoseev/office_oxide/releases/download/v0.1.2/native-linux-x86_64.tar.gz",
+         "office_oxide-linux-x86_64.tar.gz"],
     ]
     for item in urls:
         if isinstance(item, list):

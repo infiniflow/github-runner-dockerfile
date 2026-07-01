@@ -121,6 +121,17 @@ RUN --mount=type=bind,source=lefthook_2.1.9_Linux_x86_64.gz,target=/root/lefthoo
 # Copy NLTK data
 COPY nltk_data /usr/share/nltk_data
 
+# Pre-extract native static libraries for Go build (pdfium, pdf_oxide, office_oxide).
+# build.sh checks /opt/ragflow-native-libs/ first before attempting network download.
+COPY pdfium-linux-x64-static.tgz pdf_oxide-go-ffi-linux-amd64.tar.gz office_oxide-linux-x86_64.tar.gz /tmp/
+RUN mkdir -p /opt/ragflow-native-libs/pdfium-static && \
+    tar xzf /tmp/pdfium-linux-x64-static.tgz -C /opt/ragflow-native-libs/pdfium-static && \
+    mkdir -p /opt/ragflow-native-libs/pdf_oxide && \
+    tar xzf /tmp/pdf_oxide-go-ffi-linux-amd64.tar.gz -C /opt/ragflow-native-libs/pdf_oxide && \
+    mkdir -p /opt/ragflow-native-libs/office_oxide && \
+    tar xzf /tmp/office_oxide-linux-x86_64.tar.gz -C /opt/ragflow-native-libs/office_oxide && \
+    rm /tmp/pdfium-linux-x64-static.tgz /tmp/pdf_oxide-go-ffi-linux-amd64.tar.gz /tmp/office_oxide-linux-x86_64.tar.gz
+
 RUN useradd -m alice \
     && echo "alice      ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/alice
 
