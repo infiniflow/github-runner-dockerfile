@@ -114,8 +114,8 @@ RUN --mount=type=bind,source=tofu_1.12.3_linux_amd64.tar.gz,target=/root/tofu_1.
     cd /tmp && tar xzf /root/tofu_1.12.3_linux_amd64.tar.gz && cp tofu /usr/local/bin/ && rm -fr /tmp/*
 
 # Install lefthook (pre-commit hook runner, drives checks defined in lefthook.yml)
-RUN --mount=type=bind,source=lefthook_2.1.9_Linux_x86_64.gz,target=/root/lefthook_2.1.9_Linux_x86_64.gz \
-    gunzip -c /root/lefthook_2.1.9_Linux_x86_64.gz > /usr/local/bin/lefthook \
+RUN --mount=type=bind,source=lefthook_2.1.10_Linux_x86_64.gz,target=/root/lefthook_2.1.10_Linux_x86_64.gz \
+    gunzip -c /root/lefthook_2.1.10_Linux_x86_64.gz > /usr/local/bin/lefthook \
     && chmod +x /usr/local/bin/lefthook
 
 # Copy NLTK data
