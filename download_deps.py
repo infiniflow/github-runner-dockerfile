@@ -97,7 +97,7 @@ def main() -> int:
          "pdfium-linux-x64-static.tgz"],
         ["https://github.com/yfedoseev/pdf_oxide/releases/download/v0.3.67/pdf_oxide-go-ffi-linux-amd64.tar.gz",
          "pdf_oxide-go-ffi-linux-amd64.tar.gz"],
-        ["https://github.com/yfedoseev/office_oxide/releases/download/v0.1.2/native-linux-x86_64.tar.gz",
+        ["https://github.com/yfedoseev/office_oxide/releases/download/v0.1.8/native-linux-x86_64.tar.gz",
          "office_oxide-linux-x86_64.tar.gz"],
     ]
     for item in urls:
