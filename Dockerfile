@@ -12,16 +12,16 @@ RUN apt update -y && \
 RUN if [ "$NEED_MIRROR" == "1" ]; then \
         sed -i 's|http://archive.ubuntu.com|https://mirrors.tuna.tsinghua.edu.cn|g' /etc/apt/sources.list.d/ubuntu.sources; \
         sed -i 's|http://security.ubuntu.com|https://mirrors.tuna.tsinghua.edu.cn|g' /etc/apt/sources.list.d/ubuntu.sources; \
-        apt update -y; \
+        apt-get update -y; \
         mkdir -p /etc/uv; \
         echo 'python-install-mirror = "https://registry.npmmirror.com/-/binary/python-build-standalone/"' > /etc/uv/uv.toml; \
         echo "[[index]]" >> /etc/uv/uv.toml; \
         echo 'url = "https://pypi.tuna.tsinghua.edu.cn/simple"' >> /etc/uv/uv.toml; \
         echo "default = true" >> /etc/uv/uv.toml; \
     fi; \
-    apt upgrade -y && \
-    apt install -y --no-install-recommends curl jq build-essential libssl-dev libffi-dev libicu-dev python3 python3-venv python3-dev python3-pip pipx sudo git gh gawk sed wget gpg openssh-client gettext && \
-    apt clean -y
+    apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends curl jq build-essential libssl-dev libffi-dev libicu-dev python3 python3-venv python3-dev python3-pip pipx sudo git gh gawk sed wget gpg openssh-client gettext iproute2 curl telnet && \
+    apt-get clean -y
 
 RUN wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | tee /etc/apt/trusted.gpg.d/apt.llvm.org.asc && \
     if [ "$NEED_MIRROR" == "1" ]; then \
@@ -29,10 +29,10 @@ RUN wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | tee /etc/apt/trusted.
     else \
         echo "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-20 main" >> /etc/apt/sources.list; \
     fi && \
-    apt update && \
-    apt install -y llvm-20 lld-20 && \
+    apt-get update && \
+    apt-get install -y llvm-20 lld-20 && \
     ln -s /usr/bin/ld.lld-20 /usr/bin/ld.lld && \
-    apt clean -y
+    apt-get clean -y
 
 # Install Go for running Go tests
 RUN --mount=type=bind,source=go1.26.4.linux-amd64.tar.gz,target=/root/go1.26.4.linux-amd64.tar.gz \
@@ -134,6 +134,10 @@ RUN mkdir -p /opt/ragflow-native-libs/pdfium-static && \
       (echo "ERROR: office_oxide version mismatch, expected v0.1.8; run: rm office_oxide-linux-x86_64.tar.gz && uv run download_deps.py" && exit 1) && \
     rm /tmp/pdfium-linux-x64-static.tgz /tmp/pdf_oxide-go-ffi-linux-amd64.tar.gz /tmp/office_oxide-linux-x86_64.tar.gz
 
+RUN mkdir -p /opt/ragflow_deps && \
+    curl -fsSL -o /opt/ragflow_deps/cl100k_base.tiktoken \
+      https://openaipublic.blob.core.windows.net/encodings/cl100k_base.tiktoken || true
+
 RUN useradd -m alice \
     && echo "alice      ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/alice
 
@@ -151,7 +155,7 @@ RUN if [ "$NEED_MIRROR" == "1" ]; then \
 
 RUN uv python install 3.12 3.13 3.14
 
-RUN --mount=type=bind,source=actions-runner-linux-x64-2.335.1.tar.gz,target=/actions-runner.tar.gz \
+RUN --mount=type=bind,source=actions-runner-linux-x64-2.336.0.tar.gz,target=/actions-runner.tar.gz \
     cd /home/alice \
     && mkdir actions-runner \
     && cd actions-runner \
