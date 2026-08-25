@@ -77,6 +77,11 @@ def download(url: str, filename: str | None = None) -> int:
 def main() -> int:
     ensure_project_root()
 
+    # DeepDoc model files (det/layout/tsr/rec.onnx, ocr.res) are fetched here
+    # and baked into the runner image (see Dockerfile) so that CI never has to
+    # download them at run time.
+    os.makedirs("deepdoc-models", exist_ok=True)
+
     urls = [
         "https://download.docker.com/linux/static/stable/x86_64/docker-29.6.1.tgz",
         "https://github.com/docker/buildx/releases/download/v0.35.0/buildx-v0.35.0.linux-amd64",
@@ -99,6 +104,17 @@ def main() -> int:
          "pdf_oxide-go-ffi-linux-amd64.tar.gz"],
         ["https://github.com/yfedoseev/office_oxide/releases/download/v0.1.8/native-linux-x86_64.tar.gz",
          "office_oxide-linux-x86_64.tar.gz"],
+        # onnxruntime static libs for the in-process Go DeepDoc backend.
+        # Baked into the runner image (see Dockerfile) so CI never downloads it.
+        ["https://github.com/csukuangfj/onnxruntime-libs/releases/download/v1.23.2/onnxruntime-linux-x64-static_lib-1.23.2-glibc2_28.zip",
+         "onnxruntime-linux-x64-static_lib-1.23.2-glibc2_28.zip"],
+        # DeepDoc model files (det/layout/tsr/rec.onnx, ocr.res), baked into the
+        # runner image so CI never downloads them at run time.
+        ["https://huggingface.co/InfiniFlow/deepdoc/resolve/main/det.onnx", "deepdoc-models/det.onnx"],
+        ["https://huggingface.co/InfiniFlow/deepdoc/resolve/main/layout.onnx", "deepdoc-models/layout.onnx"],
+        ["https://huggingface.co/InfiniFlow/deepdoc/resolve/main/tsr.onnx", "deepdoc-models/tsr.onnx"],
+        ["https://huggingface.co/InfiniFlow/deepdoc/resolve/main/rec.onnx", "deepdoc-models/rec.onnx"],
+        ["https://huggingface.co/InfiniFlow/deepdoc/resolve/main/ocr.res", "deepdoc-models/ocr.res"],
     ]
     for item in urls:
         if isinstance(item, list):

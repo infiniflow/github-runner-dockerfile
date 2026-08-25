@@ -123,7 +123,7 @@ COPY nltk_data /usr/share/nltk_data
 
 # Pre-extract native static libraries for Go build (pdfium, pdf_oxide, office_oxide).
 # build.sh checks /opt/ragflow-native-libs/ first before attempting network download.
-COPY pdfium-linux-x64-static.tgz pdf_oxide-go-ffi-linux-amd64.tar.gz office_oxide-linux-x86_64.tar.gz /tmp/
+COPY pdfium-linux-x64-static.tgz pdf_oxide-go-ffi-linux-amd64.tar.gz office_oxide-linux-x86_64.tar.gz onnxruntime-linux-x64-static_lib-1.23.2-glibc2_28.zip /tmp/
 RUN mkdir -p /opt/ragflow-native-libs/pdfium-static && \
     tar xzf /tmp/pdfium-linux-x64-static.tgz -C /opt/ragflow-native-libs/pdfium-static && \
     mkdir -p /opt/ragflow-native-libs/pdf_oxide && \
@@ -133,6 +133,18 @@ RUN mkdir -p /opt/ragflow-native-libs/pdfium-static && \
     strings /opt/ragflow-native-libs/office_oxide/lib/liboffice_oxide.a 2>/dev/null | grep -Fxq "0.1.8" || \
       (echo "ERROR: office_oxide version mismatch, expected v0.1.8; run: rm office_oxide-linux-x86_64.tar.gz && uv run download_deps.py" && exit 1) && \
     rm /tmp/pdfium-linux-x64-static.tgz /tmp/pdf_oxide-go-ffi-linux-amd64.tar.gz /tmp/office_oxide-linux-x86_64.tar.gz
+
+# onnxruntime static libs for the in-process Go DeepDoc backend. Baked into
+# /opt (like the other native libs); build.sh seeds it to the user cache at
+# build/test time via _seed_from_system, so CI never downloads it.
+RUN mkdir -p /opt/ragflow-native-libs/onnxruntime/static_lib && \
+    python3 -c "import zipfile; zipfile.ZipFile('/tmp/onnxruntime-linux-x64-static_lib-1.23.2-glibc2_28.zip').extractall('/opt/ragflow-native-libs/onnxruntime/static_lib')" && \
+    rm /tmp/onnxruntime-linux-x64-static_lib-1.23.2-glibc2_28.zip
+
+# DeepDoc model files (det/layout/tsr/rec.onnx, ocr.res), baked into the
+# runner image so CI never downloads them at run time. Consumed by
+# sep-tests.yml via the MODEL_DIR env var.
+COPY deepdoc-models/ /opt/ragflow-deepdoc-models/
 
 RUN mkdir -p /opt/ragflow_deps && \
     curl -fsSL -o /opt/ragflow_deps/cl100k_base.tiktoken \
