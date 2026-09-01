@@ -130,8 +130,8 @@ RUN mkdir -p /opt/ragflow-native-libs/pdfium-static && \
     tar xzf /tmp/pdf_oxide-go-ffi-linux-amd64.tar.gz -C /opt/ragflow-native-libs/pdf_oxide && \
     mkdir -p /opt/ragflow-native-libs/office_oxide && \
     tar xzf /tmp/office_oxide-linux-x86_64.tar.gz -C /opt/ragflow-native-libs/office_oxide && \
-    strings /opt/ragflow-native-libs/office_oxide/lib/liboffice_oxide.a 2>/dev/null | grep -Fxq "0.1.8" || \
-      (echo "ERROR: office_oxide version mismatch, expected v0.1.8; run: rm office_oxide-linux-x86_64.tar.gz && uv run download_deps.py" && exit 1) && \
+    strings /opt/ragflow-native-libs/office_oxide/lib/liboffice_oxide.a 2>/dev/null | grep -Fxq "0.1.9" || \
+      (echo "ERROR: office_oxide version mismatch, expected v0.1.9; run: rm office_oxide-linux-x86_64.tar.gz && uv run download_deps.py" && exit 1) && \
     rm /tmp/pdfium-linux-x64-static.tgz /tmp/pdf_oxide-go-ffi-linux-amd64.tar.gz /tmp/office_oxide-linux-x86_64.tar.gz
 
 # onnxruntime static libs for the in-process Go DeepDoc backend. Baked into
