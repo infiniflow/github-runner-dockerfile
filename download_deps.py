@@ -100,7 +100,7 @@ def main() -> int:
         # Native static libraries for Go build (pdfium, pdf_oxide, office_oxide)
         ["https://github.com/kognitos/pdfium-static/releases/download/chromium%2F7809/pdfium-linux-x64-static.tgz",
          "pdfium-linux-x64-static.tgz"],
-        ["https://github.com/yfedoseev/pdf_oxide/releases/download/v0.3.67/pdf_oxide-go-ffi-linux-amd64.tar.gz",
+        ["https://github.com/yfedoseev/pdf_oxide/releases/download/v0.3.73/pdf_oxide-go-ffi-linux-amd64.tar.gz",
          "pdf_oxide-go-ffi-linux-amd64.tar.gz"],
         ["https://github.com/yfedoseev/office_oxide/releases/download/v0.1.9/native-linux-x86_64.tar.gz",
          "office_oxide-linux-x86_64.tar.gz"],

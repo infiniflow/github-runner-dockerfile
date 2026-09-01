@@ -128,6 +128,8 @@ RUN mkdir -p /opt/ragflow-native-libs/pdfium-static && \
     tar xzf /tmp/pdfium-linux-x64-static.tgz -C /opt/ragflow-native-libs/pdfium-static && \
     mkdir -p /opt/ragflow-native-libs/pdf_oxide && \
     tar xzf /tmp/pdf_oxide-go-ffi-linux-amd64.tar.gz -C /opt/ragflow-native-libs/pdf_oxide && \
+    [ "$(strings /opt/ragflow-native-libs/pdf_oxide/lib/linux_amd64/libpdf_oxide.a 2>/dev/null | grep -oE 'pdf_oxide [0-9]+\.[0-9]+\.[0-9]+' | head -1 | cut -d' ' -f2)" = "0.3.73" ] || \
+      (echo "ERROR: pdf_oxide version mismatch, expected v0.3.73; run: rm pdf_oxide-go-ffi-linux-amd64.tar.gz && uv run download_deps.py" && exit 1) && \
     mkdir -p /opt/ragflow-native-libs/office_oxide && \
     tar xzf /tmp/office_oxide-linux-x86_64.tar.gz -C /opt/ragflow-native-libs/office_oxide && \
     strings /opt/ragflow-native-libs/office_oxide/lib/liboffice_oxide.a 2>/dev/null | grep -Fxq "0.1.9" || \
