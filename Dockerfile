@@ -30,13 +30,15 @@ RUN wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | tee /etc/apt/trusted.
         echo "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-20 main" >> /etc/apt/sources.list; \
     fi && \
     apt-get update && \
-    apt-get install -y llvm-20 lld-20 && \
+    apt-get install -y llvm-20 lld-20 clang-20 && \
     ln -s /usr/bin/ld.lld-20 /usr/bin/ld.lld && \
+    ln -s /usr/bin/clang-20 /usr/bin/clang && \
+    ln -s /usr/bin/clang++-20 /usr/bin/clang++ && \
     apt-get clean -y
 
 # Install Go for running Go tests
-RUN --mount=type=bind,source=go1.26.4.linux-amd64.tar.gz,target=/root/go1.26.4.linux-amd64.tar.gz \
-    tar -C /usr/local -xzf /root/go1.26.4.linux-amd64.tar.gz
+RUN --mount=type=bind,source=go1.27.1.linux-amd64.tar.gz,target=/root/go1.27.1.linux-amd64.tar.gz \
+    tar -C /usr/local -xzf /root/go1.27.1.linux-amd64.tar.gz
 ENV PATH="/usr/local/go/bin:${PATH}"
 
 # Install Node.js (provides npm/npx, used by web-prettier and web-eslint hooks in lefthook.yml)
@@ -117,6 +119,11 @@ RUN --mount=type=bind,source=tofu_1.12.3_linux_amd64.tar.gz,target=/root/tofu_1.
 RUN --mount=type=bind,source=lefthook_2.1.10_Linux_x86_64.gz,target=/root/lefthook_2.1.10_Linux_x86_64.gz \
     gunzip -c /root/lefthook_2.1.10_Linux_x86_64.gz > /usr/local/bin/lefthook \
     && chmod +x /usr/local/bin/lefthook
+
+# Install cmake 4.4.3 (needed to build certain native dependencies in CI)
+RUN --mount=type=bind,source=cmake-4.4.3-linux-x86_64.tar.gz,target=/root/cmake-4.4.3-linux-x86_64.tar.gz \
+    tar xzf /root/cmake-4.4.3-linux-x86_64.tar.gz -C /opt \
+    && ln -s /opt/cmake-4.4.3-linux-x86_64/bin/* /usr/local/bin/
 
 # Copy NLTK data
 COPY nltk_data /usr/share/nltk_data
