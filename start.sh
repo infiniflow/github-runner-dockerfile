@@ -47,7 +47,13 @@ cd $HOME/actions-runner
 sudo mkdir -p ${RUNNER_WORKSPACE} && sudo chown -R ${USER} ${RUNNER_WORKSPACE}
 
 LABELS_OPT=${EXTRA_LABELS:+--labels $EXTRA_LABELS}
-./config.sh --url https://github.com/${REPOSITORY} --token ${REG_TOKEN} --name ${RUNNER_NAME} ${LABELS_OPT} --work ${RUNNER_WORKSPACE} --replace
+# Disable auto-update: the runner baked into this image is the version we
+# want. Auto-update inside the container triggers a known upstream bug
+# (https://github.com/actions/runner/issues/2868) where update.sh's
+# bin/externals move on overlayfs outlives run-helper.sh's 30s wait, leaving
+# bin/Runner.Listener missing on the post-update restart. Rebuild the image
+# to bump the runner version instead.
+./config.sh --url https://github.com/${REPOSITORY} --token ${REG_TOKEN} --name ${RUNNER_NAME} ${LABELS_OPT} --work ${RUNNER_WORKSPACE} --replace --disableupdate
 
 cleanup() {
     echo "Removing runner..."
