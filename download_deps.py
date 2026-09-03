@@ -93,7 +93,7 @@ def main() -> int:
         "https://go.dev/dl/go1.26.4.linux-amd64.tar.gz",
         "https://nodejs.org/dist/v22.23.1/node-v22.23.1-linux-x64.tar.xz",
         "https://github.com/stripe/stripe-cli/releases/download/v1.43.2/stripe_1.43.2_linux_x86_64.tar.gz",
-        "https://github.com/actions/runner/releases/download/v2.336.0/actions-runner-linux-x64-2.336.0.tar.gz",
+        "https://github.com/actions/runner/releases/download/v2.337.0/actions-runner-linux-x64-2.337.0.tar.gz",
         ["https://dl.k8s.io/release/v1.36.1/bin/linux/amd64/kubectl", "kubectl-v1.36.1"],
         "https://github.com/opentofu/opentofu/releases/download/v1.12.3/tofu_1.12.3_linux_amd64.tar.gz",
         "https://github.com/evilmartians/lefthook/releases/download/v2.1.10/lefthook_2.1.10_Linux_x86_64.gz",
