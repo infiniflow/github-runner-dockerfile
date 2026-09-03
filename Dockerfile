@@ -169,7 +169,7 @@ RUN if [ "$NEED_MIRROR" == "1" ]; then \
 
 RUN uv python install 3.12 3.13 3.14
 
-RUN --mount=type=bind,source=actions-runner-linux-x64-2.336.0.tar.gz,target=/actions-runner.tar.gz \
+RUN --mount=type=bind,source=actions-runner-linux-x64-2.337.0.tar.gz,target=/actions-runner.tar.gz \
     cd /home/alice \
     && mkdir actions-runner \
     && cd actions-runner \
