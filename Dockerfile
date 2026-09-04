@@ -20,7 +20,7 @@ RUN if [ "$NEED_MIRROR" == "1" ]; then \
         echo "default = true" >> /etc/uv/uv.toml; \
     fi; \
     apt-get upgrade -y && \
-    apt-get install -y --no-install-recommends curl jq build-essential libssl-dev libffi-dev libicu-dev python3 python3-venv python3-dev python3-pip pipx sudo git gh gawk sed wget gpg openssh-client gettext iproute2 curl telnet && \
+    apt-get install -y --no-install-recommends curl jq build-essential libssl-dev libffi-dev libicu-dev python3 python3-venv python3-dev python3-pip pipx sudo git gh gawk sed wget gpg openssh-client gettext iproute2 curl telnet unzip && \
     apt-get clean -y
 
 RUN wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | tee /etc/apt/trusted.gpg.d/apt.llvm.org.asc && \
