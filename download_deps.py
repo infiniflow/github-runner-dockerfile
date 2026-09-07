@@ -117,6 +117,13 @@ def main() -> int:
         ["https://huggingface.co/InfiniFlow/deepdoc/resolve/main/tsr.onnx", "deepdoc-models/tsr.onnx"],
         ["https://huggingface.co/InfiniFlow/deepdoc/resolve/main/rec.onnx", "deepdoc-models/rec.onnx"],
         ["https://huggingface.co/InfiniFlow/deepdoc/resolve/main/ocr.res", "deepdoc-models/ocr.res"],
+        ["https://huggingface.co/InfiniFlow/deepdoc/resolve/main/det.ort", "deepdoc-models/det.ort"],
+        ["https://huggingface.co/InfiniFlow/deepdoc/resolve/main/layout.laws.ort", "deepdoc-models/layout.laws.ort"],
+        ["https://huggingface.co/InfiniFlow/deepdoc/resolve/main/layout.manual.ort", "deepdoc-models/layout.manual.ort"],
+        ["https://huggingface.co/InfiniFlow/deepdoc/resolve/main/layout.ort", "deepdoc-models/layout.ort"],
+        ["https://huggingface.co/InfiniFlow/deepdoc/resolve/main/layout.paper.ort", "deepdoc-models/layout.paper.ort"],
+        ["https://huggingface.co/InfiniFlow/deepdoc/resolve/main/rec.ort", "deepdoc-models/rec.ort"],
+        ["https://huggingface.co/InfiniFlow/deepdoc/resolve/main/tsr.ort", "deepdoc-models/tsr.ort"],
     ]
     for item in urls:
         if isinstance(item, list):
