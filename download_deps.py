@@ -110,6 +110,8 @@ def main() -> int:
         # Baked into the runner image (see Dockerfile) so CI never downloads it.
         ["https://github.com/csukuangfj/onnxruntime-libs/releases/download/v1.23.2/onnxruntime-linux-x64-static_lib-1.23.2-glibc2_28.zip",
          "onnxruntime-linux-x64-static_lib-1.23.2-glibc2_28.zip"],
+         ["https://github.com/infiniflow/ragflow-build/releases/download/onnxruntime-v1.29.0/onnxruntime-v1.29.0-linux-x86_64.zip",
+         "onnxruntime-v1.29.0-linux-x86_64.zip"],
         # DeepDoc model files (det/layout/tsr/rec.onnx, ocr.res), baked into the
         # runner image so CI never downloads them at run time.
         ["https://huggingface.co/InfiniFlow/deepdoc/resolve/main/det.onnx", "deepdoc-models/det.onnx"],
