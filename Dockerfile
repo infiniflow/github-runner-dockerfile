@@ -130,7 +130,7 @@ COPY nltk_data /usr/share/nltk_data
 
 # Pre-extract native static libraries for Go build (pdfium, pdf_oxide, office_oxide).
 # build.sh checks /opt/ragflow-native-libs/ first before attempting network download.
-COPY pdfium-linux-x64-static.tgz pdf_oxide-go-ffi-linux-amd64.tar.gz office_oxide-linux-x86_64.tar.gz onnxruntime-linux-x64-static_lib-1.23.2-glibc2_28.zip /tmp/
+COPY pdfium-linux-x64-static.tgz pdf_oxide-go-ffi-linux-amd64.tar.gz office_oxide-linux-x86_64.tar.gz onnxruntime-linux-x64-static_lib-1.23.2-glibc2_28.zip onnxruntime-v1.29.0-linux-x86_64.zip /tmp/
 RUN mkdir -p /opt/ragflow-native-libs/pdfium-static && \
     tar xzf /tmp/pdfium-linux-x64-static.tgz -C /opt/ragflow-native-libs/pdfium-static && \
     mkdir -p /opt/ragflow-native-libs/pdf_oxide && \
@@ -143,12 +143,20 @@ RUN mkdir -p /opt/ragflow-native-libs/pdfium-static && \
       (echo "ERROR: office_oxide version mismatch, expected v0.1.9; run: rm office_oxide-linux-x86_64.tar.gz && uv run download_deps.py" && exit 1) && \
     rm /tmp/pdfium-linux-x64-static.tgz /tmp/pdf_oxide-go-ffi-linux-amd64.tar.gz /tmp/office_oxide-linux-x86_64.tar.gz
 
-# onnxruntime static libs for the in-process Go DeepDoc backend. Baked into
-# /opt (like the other native libs); build.sh seeds it to the user cache at
-# build/test time via _seed_from_system, so CI never downloads it.
+# onnxruntime static libs, baked into /opt (like the other native libs);
+# build.sh seeds it to the user cache at build/test time via _seed_from_system,
+# so CI never downloads it. 1.23.2 is consumed by the Python DeepDoc pipeline;
+# 1.29.0 is the Go in-process backend (mirrors DeepDocORTVersion). The two are
+# extracted into separate version-stamped dirs under static_lib.
 RUN mkdir -p /opt/ragflow-native-libs/onnxruntime/static_lib && \
     python3 -c "import zipfile; zipfile.ZipFile('/tmp/onnxruntime-linux-x64-static_lib-1.23.2-glibc2_28.zip').extractall('/opt/ragflow-native-libs/onnxruntime/static_lib')" && \
-    rm /tmp/onnxruntime-linux-x64-static_lib-1.23.2-glibc2_28.zip
+    python3 -c "import zipfile,shutil,os; \
+      z=zipfile.ZipFile('/tmp/onnxruntime-v1.29.0-linux-x86_64.zip'); \
+      z.extractall('/opt/ragflow-native-libs/onnxruntime/static_lib'); z.close(); \
+      src='/opt/ragflow-native-libs/onnxruntime/static_lib/onnxruntime-v1.29.0-linux-x86_64'; \
+      dst='/opt/ragflow-native-libs/onnxruntime/static_lib/onnxruntime-linux-x64-static_lib-1.29.0-glibc2_28'; \
+      (os.path.exists(dst) and shutil.rmtree(dst)); os.rename(src,dst)" && \
+    rm /tmp/onnxruntime-linux-x64-static_lib-1.23.2-glibc2_28.zip /tmp/onnxruntime-v1.29.0-linux-x86_64.zip
 
 # DeepDoc model files (det/layout/tsr/rec.onnx, ocr.res), baked into the
 # runner image so CI never downloads them at run time. Consumed by
