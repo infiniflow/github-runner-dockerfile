@@ -127,6 +127,31 @@ def main() -> int:
          "onnxruntime-linux-x64-static_lib-1.23.2-glibc2_28.zip"],
          ["https://github.com/infiniflow/ragflow-build/releases/download/onnxruntime-v1.29.0/onnxruntime-v1.29.0-linux-x86_64.zip",
          "onnxruntime-v1.29.0-linux-x86_64.zip"],
+        # ---- arm64 (aarch64) counterparts ----
+        # Mirrors the amd64 block above so a single `download_deps.py` run
+        # provisions both architectures. The Dockerfile selects per TARGETARCH
+        # (see ARG TARGETARCH) to build one multi-arch runner image that runs
+        # natively on amd64 and arm64 (ragflow PR #19247 arm64 support).
+        ["https://go.dev/dl/go1.27.1.linux-arm64.tar.gz", "go1.27.1.linux-arm64.tar.gz"],
+        ["https://nodejs.org/dist/v22.23.1/node-v22.23.1-linux-arm64.tar.xz", "node-v22.23.1-linux-arm64.tar.xz"],
+        ["https://download.docker.com/linux/static/stable/aarch64/docker-29.6.1.tgz", "docker-29.6.1-aarch64.tgz"],
+        ["https://github.com/docker/buildx/releases/download/v0.35.0/buildx-v0.35.0.linux-arm64", "buildx-v0.35.0.linux-arm64"],
+        ["https://github.com/docker/compose/releases/download/v5.2.0/docker-compose-linux-aarch64", "docker-compose-linux-aarch64"],
+        ["https://github.com/getsentry/prevent-cli/releases/download/v11.2.8/codecovcli_linux_aarch64", "codecovcli_linux_aarch64"],
+        ["https://github.com/astral-sh/uv/releases/download/0.11.25/uv-aarch64-unknown-linux-gnu.tar.gz", "uv-aarch64-unknown-linux-gnu.tar.gz"],
+        ["https://github.com/astral-sh/ruff/releases/download/0.15.20/ruff-aarch64-unknown-linux-gnu.tar.gz", "ruff-aarch64-unknown-linux-gnu.tar.gz"],
+        ["https://github.com/risinglightdb/sqllogictest-rs/releases/download/v0.29.1/sqllogictest-bin-v0.29.1-aarch64-unknown-linux-musl.tar.gz", "sqllogictest-bin-v0.29.1-aarch64-unknown-linux-musl.tar.gz"],
+        ["https://dl.k8s.io/release/v1.36.1/bin/linux/arm64/kubectl", "kubectl-v1.36.1-arm64"],
+        ["https://github.com/opentofu/opentofu/releases/download/v1.12.3/tofu_1.12.3_linux_arm64.tar.gz", "tofu_1.12.3_linux_arm64.tar.gz"],
+        ["https://github.com/evilmartians/lefthook/releases/download/v2.1.10/lefthook_2.1.10_Linux_arm64.gz", "lefthook_2.1.10_Linux_arm64.gz"],
+        ["https://github.com/stripe/stripe-cli/releases/download/v1.43.2/stripe_1.43.2_linux_arm64.tar.gz", "stripe_1.43.2_linux_arm64.tar.gz"],
+        ["https://github.com/Kitware/CMake/releases/download/v4.4.3/cmake-4.4.3-linux-aarch64.tar.gz", "cmake-4.4.3-linux-aarch64.tar.gz"],
+        ["https://github.com/actions/runner/releases/download/v2.337.0/actions-runner-linux-arm64-2.337.0.tar.gz", "actions-runner-linux-arm64-2.337.0.tar.gz"],
+        ["https://github.com/kognitos/pdfium-static/releases/download/chromium%2F7809/pdfium-linux-arm64-static.tgz", "pdfium-linux-arm64-static.tgz"],
+        ["https://github.com/yfedoseev/pdf_oxide/releases/download/v0.3.73/pdf_oxide-go-ffi-linux-arm64.tar.gz", "pdf_oxide-go-ffi-linux-arm64.tar.gz"],
+        ["https://github.com/yfedoseev/office_oxide/releases/download/v0.1.12/native-linux-aarch64.tar.gz", "office_oxide-linux-aarch64.tar.gz"],
+        ["https://github.com/csukuangfj/onnxruntime-libs/releases/download/v1.23.2/onnxruntime-linux-aarch64-static_lib-1.23.2-glibc2_28.zip", "onnxruntime-linux-aarch64-static_lib-1.23.2-glibc2_28.zip"],
+        ["https://github.com/infiniflow/ragflow-build/releases/download/onnxruntime-v1.29.0/onnxruntime-v1.29.0-linux-aarch64.zip", "onnxruntime-v1.29.0-linux-aarch64.zip"],
         # DeepDoc model files (det/layout/tsr/rec.onnx, ocr.res), baked into the
         # runner image so CI never downloads them at run time.
         ["https://huggingface.co/InfiniFlow/deepdoc/resolve/main/det.onnx", "deepdoc-models/det.onnx"],
