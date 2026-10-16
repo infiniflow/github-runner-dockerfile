@@ -137,7 +137,7 @@ def main() -> int:
         ["https://download.docker.com/linux/static/stable/aarch64/docker-29.6.1.tgz", "docker-29.6.1-aarch64.tgz"],
         ["https://github.com/docker/buildx/releases/download/v0.35.0/buildx-v0.35.0.linux-arm64", "buildx-v0.35.0.linux-arm64"],
         ["https://github.com/docker/compose/releases/download/v5.2.0/docker-compose-linux-aarch64", "docker-compose-linux-aarch64"],
-        ["https://github.com/getsentry/prevent-cli/releases/download/v11.2.8/codecovcli_linux_aarch64", "codecovcli_linux_aarch64"],
+        ["https://github.com/codecov/codecov-cli/releases/download/v11.2.8/codecovcli_linux_arm64", "codecovcli_linux_aarch64"],
         ["https://github.com/astral-sh/uv/releases/download/0.11.25/uv-aarch64-unknown-linux-gnu.tar.gz", "uv-aarch64-unknown-linux-gnu.tar.gz"],
         ["https://github.com/astral-sh/ruff/releases/download/0.15.20/ruff-aarch64-unknown-linux-gnu.tar.gz", "ruff-aarch64-unknown-linux-gnu.tar.gz"],
         ["https://github.com/risinglightdb/sqllogictest-rs/releases/download/v0.29.1/sqllogictest-bin-v0.29.1-aarch64-unknown-linux-musl.tar.gz", "sqllogictest-bin-v0.29.1-aarch64-unknown-linux-musl.tar.gz"],
