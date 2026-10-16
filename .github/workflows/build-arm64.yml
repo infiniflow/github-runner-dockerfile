@@ -19,8 +19,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  IMAGE_NAME: myfbee/github-runner
-  IMAGE_TAG: arm64
+  IMAGE_NAME: myfbee/github_action_runner
+  IMAGE_TAG: latest
 
 jobs:
   build-arm64:
