@@ -73,7 +73,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           username: infiniflow
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Build and push (linux/arm64)
         uses: docker/build-push-action@v6
