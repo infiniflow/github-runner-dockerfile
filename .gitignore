@@ -1,0 +1,2 @@
+# .gitignore uses glob patterns instead of regex
+*.env

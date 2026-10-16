@@ -1,0 +1,89 @@
+name: Build ARM64 runner image
+
+# Build the GitHub Actions runner image for linux/arm64 on a GitHub-hosted
+# ARM64 machine (ubuntu-24.04-arm) and push it to Docker Hub.
+#
+# The Dockerfile already selects every architecture-specific binary via
+# ARG TARGETARCH, so we only need to pin the build platform to arm64 and
+# make sure download_deps.py has populated the build context with both
+# amd64 + arm64 tarballs (buildx validates --mount=type=bind sources at
+# parse time, so the amd64 packages must exist even for an arm64 build).
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+concurrency:
+  group: build-arm64-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  IMAGE_NAME: infiniflow/github_action_runner
+  IMAGE_TAG: latest-arm64
+
+jobs:
+  build-arm64:
+    # Native ARM64 GitHub-hosted runner: real arm hardware, no QEMU emulation.
+    runs-on: ubuntu-24.04-arm
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # The ARM runner disk is ~14GB; drop the heaviest preinstalled toolchains
+      # we don't need to make room for the 1-2GB dependency download + build.
+      - name: Free disk space
+        run: |
+          sudo rm -rf /opt/hostedtoolcache /usr/share/dotnet /usr/local/lib/android 2>/dev/null || true
+          df -h
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+
+      # download_deps.py is idempotent (skips files already present), so caching
+      # the downloaded tarballs/nltk/deepdoc data avoids re-pulling ~2GB every run.
+      - name: Cache downloaded deps
+        uses: actions/cache@v4
+        with:
+          path: |
+            *.tar.gz
+            *.tgz
+            *.tar.xz
+            *.zip
+            *.gz
+            kubectl-*
+            docker-compose-*
+            docker-*-aarch64.tgz
+            docker-*-arm64.tgz
+            buildx-*
+            codecovcli_*
+            lefthook_*
+            nltk_data
+            deepdoc-models
+          key: deps-${{ runner.arch }}-${{ hashFiles('download_deps.py') }}
+
+      - name: Download build dependencies
+        run: uv run download_deps.py
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: infiniflow
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push (linux/arm64)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/arm64
+          push: true
+          tags: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          # Persist build cache layers to Docker Hub so subsequent arm64 builds
+          # skip re-extracting the large native libs / runner install steps.
+          cache-from: type=registry,ref=${{ env.IMAGE_NAME }}:buildcache-arm64
+          cache-to: type=registry,ref=${{ env.IMAGE_NAME }}:buildcache-arm64,mode=max

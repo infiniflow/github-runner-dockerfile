@@ -1,20 +1,66 @@
 #!/bin/bash
 
 REPOSITORY=$REPO
-ACCESS_TOKEN=$TOKEN
+ACCESS_TOKEN=$MY_GH_TOKEN
+RUNNER_NAME=${HOST_HOSTNAME}-$(hostname)
+RUNNER_WORKSPACE=${RUNNER_WORKSPACE_PREFIX}/${RUNNER_NAME}
+KUBECONFIG=${KUBECONFIG:-/runner-secrets/kubeconfig}
+
+if [[ -f "${KUBECONFIG}" ]]; then
+    export KUBE_CONFIG="$(cat "${KUBECONFIG}")"
+    echo "Loaded kubeconfig from ${KUBECONFIG}"
+else
+    unset KUBECONFIG
+    unset KUBE_CONFIG
+    echo "No kubeconfig file found at ${KUBECONFIG}; continuing without Kubernetes context"
+fi
+
+NanoCpus=$(sudo docker inspect $(hostname) | jq -r .[0].HostConfig.NanoCpus)
+if [ "$NanoCpus" -eq 0 ]; then
+    export CPUS=$(nproc)
+else
+    export CPUS=$(( (NanoCpus + 999999999) / 1000000000 ))
+fi
 
 echo "REPO ${REPOSITORY}"
 echo "ACCESS_TOKEN ${ACCESS_TOKEN}"
+echo "EXTRA_LABELS ${EXTRA_LABELS}"
+echo "RUNNER_WORKSPACE ${RUNNER_WORKSPACE}"
+echo "KUBECONFIG ${KUBECONFIG:-<unset>}"
+echo "CPUS ${CPUS}"
 
-REG_TOKEN=$(curl -X POST -H "Authorization: token ${ACCESS_TOKEN}" -H "Accept: application/vnd.github+json" https://api.github.com/repos/${REPOSITORY}/actions/runners/registration-token | jq .token --raw-output)
+# https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#create-a-registration-token-for-an-organization
+# https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#create-a-registration-token-for-a-repository
+# https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#delete-a-self-hosted-runner-from-an-organization
+# https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#delete-a-self-hosted-runner-from-a-repository
+if [[ "${REPOSITORY}" =~ / ]]; then
+    ENTITY="repos/${REPOSITORY}"
+else
+    ENTITY="orgs/${REPOSITORY}"
+fi
+echo "ENTITY ${ENTITY}"
 
-cd /home/docker/actions-runner
+REG_TOKEN=$(curl -s -X POST -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${ACCESS_TOKEN}" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/${ENTITY}/actions/runners/registration-token | jq .token --raw-output)
+echo "REG_TOKEN ${REG_TOKEN}"
 
-./config.sh --url https://github.com/${REPOSITORY} --token ${REG_TOKEN}
+cd $HOME/actions-runner
+sudo mkdir -p ${RUNNER_WORKSPACE} && sudo chown -R ${USER} ${RUNNER_WORKSPACE}
+
+LABELS_OPT=${EXTRA_LABELS:+--labels $EXTRA_LABELS}
+# Disable auto-update: the runner baked into this image is the version we
+# want. Auto-update inside the container triggers a known upstream bug
+# (https://github.com/actions/runner/issues/2868) where update.sh's
+# bin/externals move on overlayfs outlives run-helper.sh's 30s wait, leaving
+# bin/Runner.Listener missing on the post-update restart. Rebuild the image
+# to bump the runner version instead.
+./config.sh --url https://github.com/${REPOSITORY} --token ${REG_TOKEN} --name ${RUNNER_NAME} ${LABELS_OPT} --work ${RUNNER_WORKSPACE} --replace --disableupdate
 
 cleanup() {
     echo "Removing runner..."
-    ./config.sh remove --unattended --token ${REG_TOKEN}
+    REMOVE_TOKEN=$(curl -s -X POST -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${ACCESS_TOKEN}" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/${ENTITY}/actions/runners/remove-token | jq .token --raw-output)
+    echo "REMOVE_TOKEN ${REMOVE_TOKEN}"
+    ./config.sh remove --token ${REMOVE_TOKEN}
+    sudo rm -rf ${RUNNER_WORKSPACE}
 }
 
 trap 'cleanup; exit 130' INT

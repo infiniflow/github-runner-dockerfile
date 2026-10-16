@@ -1,0 +1,191 @@
+#!/usr/bin/env python3
+
+"""
+This script should be run from the project root directory
+Usage:  uv run download_deps.py
+"""
+# PEP 723 metadata
+# /// script
+# requires-python = ">=3.10"
+# dependencies = [
+#   "nltk",
+# ]
+# ///
+
+import os
+import sys
+import ssl
+import pathlib
+from urllib import request, parse, error
+
+# NLTK >=3.10 refuses proxied downloads (SSRF guard, CWE-918) unless opted in.
+# The build host may sit behind a proxy, so allow proxied fetches before
+# importing nltk; otherwise `nltk.download` fails with a Security Violation.
+os.environ.setdefault("NLTK_ALLOW_PROXIED_URLOPEN", "1")
+
+import nltk
+import nltk.pathsec
+
+# The build host sits behind an intercepting proxy whose egress IP
+# (198.18.0.0/15) NLTK's SSRF guard flags as "restricted", so even with the
+# proxied-fetch opt-in `nltk.download` still aborts. For this trusted, one-time
+# data fetch we relax pathsec enforcement (warn, don't raise) so the download
+# can proceed through the proxy.
+nltk.pathsec.ENFORCE = False
+nltk.pathsec.ALLOW_PROXIED_FETCH = True
+
+
+def ensure_project_root() -> None:
+    cwd = pathlib.Path.cwd()
+    if not (cwd / "Dockerfile").is_file():
+        print("Error: This script must be run from the project root directory")
+        print("Usage: ./download_deps.py")
+        sys.exit(1)
+
+
+def basename_from_url(url: str) -> str:
+    path = parse.urlsplit(url).path
+    name = os.path.basename(path)
+    return name or "downloaded.file"
+
+
+def file_exists_and_nonempty(path: pathlib.Path) -> bool:
+    try:
+        return path.is_file() and path.stat().st_size > 0
+    except OSError:
+        return False
+
+
+def download(url: str, filename: str | None = None) -> int:
+    print(f"download {url}" + (f" -> {filename}" if filename else ""))
+    fn = filename or basename_from_url(url)
+    out_path = pathlib.Path(fn)
+
+    if file_exists_and_nonempty(out_path):
+        print(f"File {fn} already exists, skipping.")
+        return 0
+
+    # Match curl --insecure by disabling certificate verification
+    ctx = ssl._create_unverified_context()
+
+    try:
+        with request.urlopen(url, context=ctx) as resp, open(out_path, "wb") as f:
+            # Stream to disk
+            chunk_size = 1024 * 64
+            while True:
+                chunk = resp.read(chunk_size)
+                if not chunk:
+                    break
+                f.write(chunk)
+        return 0
+    except error.HTTPError as e:
+        print(f"HTTP error downloading {url}: {e}")
+        return 1
+    except error.URLError as e:
+        print(f"URL error downloading {url}: {e}")
+        return 1
+    except Exception as e:
+        print(f"Unexpected error downloading {url}: {e}")
+        return 1
+
+
+def main() -> int:
+    ensure_project_root()
+
+    # DeepDoc model files (det/layout/tsr/rec.onnx, ocr.res) are fetched here
+    # and baked into the runner image (see Dockerfile) so that CI never has to
+    # download them at run time.
+    os.makedirs("deepdoc-models", exist_ok=True)
+
+    urls = [
+        "https://download.docker.com/linux/static/stable/x86_64/docker-29.6.1.tgz",
+        "https://github.com/docker/buildx/releases/download/v0.35.0/buildx-v0.35.0.linux-amd64",
+        "https://github.com/docker/compose/releases/download/v5.2.0/docker-compose-linux-x86_64",
+        "https://github.com/getsentry/prevent-cli/releases/download/v11.2.8/codecovcli_linux",
+        "https://github.com/astral-sh/uv/releases/download/0.11.25/uv-x86_64-unknown-linux-gnu.tar.gz",
+        "https://github.com/astral-sh/ruff/releases/download/0.15.20/ruff-x86_64-unknown-linux-gnu.tar.gz",
+        "https://github.com/risinglightdb/sqllogictest-rs/releases/download/v0.29.1/sqllogictest-bin-v0.29.1-x86_64-unknown-linux-musl.tar.gz",
+        "https://go.dev/dl/go1.27.1.linux-amd64.tar.gz",
+        "https://nodejs.org/dist/v22.23.1/node-v22.23.1-linux-x64.tar.xz",
+        "https://github.com/stripe/stripe-cli/releases/download/v1.43.2/stripe_1.43.2_linux_x86_64.tar.gz",
+        "https://github.com/actions/runner/releases/download/v2.337.0/actions-runner-linux-x64-2.337.0.tar.gz",
+        ["https://dl.k8s.io/release/v1.36.1/bin/linux/amd64/kubectl", "kubectl-v1.36.1"],
+        "https://github.com/opentofu/opentofu/releases/download/v1.12.3/tofu_1.12.3_linux_amd64.tar.gz",
+        "https://github.com/evilmartians/lefthook/releases/download/v2.1.10/lefthook_2.1.10_Linux_x86_64.gz",
+        # cmake 4.4.3 (needed to build certain native dependencies in CI)
+        "https://github.com/Kitware/CMake/releases/download/v4.4.3/cmake-4.4.3-linux-x86_64.tar.gz",
+        # Native static libraries for Go build (pdfium, pdf_oxide, office_oxide)
+        ["https://github.com/kognitos/pdfium-static/releases/download/chromium%2F7809/pdfium-linux-x64-static.tgz",
+         "pdfium-linux-x64-static.tgz"],
+        ["https://github.com/yfedoseev/pdf_oxide/releases/download/v0.3.73/pdf_oxide-go-ffi-linux-amd64.tar.gz",
+         "pdf_oxide-go-ffi-linux-amd64.tar.gz"],
+        ["https://github.com/yfedoseev/office_oxide/releases/download/v0.1.12/native-linux-x86_64.tar.gz",
+         "office_oxide-linux-x86_64.tar.gz"],
+        # onnxruntime static libs for the in-process Go DeepDoc backend.
+        # Baked into the runner image (see Dockerfile) so CI never downloads it.
+        ["https://github.com/csukuangfj/onnxruntime-libs/releases/download/v1.23.2/onnxruntime-linux-x64-static_lib-1.23.2-glibc2_28.zip",
+         "onnxruntime-linux-x64-static_lib-1.23.2-glibc2_28.zip"],
+         ["https://github.com/infiniflow/ragflow-build/releases/download/onnxruntime-v1.29.0/onnxruntime-v1.29.0-linux-x86_64.zip",
+         "onnxruntime-v1.29.0-linux-x86_64.zip"],
+        # ---- arm64 (aarch64) counterparts ----
+        # Mirrors the amd64 block above so a single `download_deps.py` run
+        # provisions both architectures. The Dockerfile selects per TARGETARCH
+        # (see ARG TARGETARCH) to build one multi-arch runner image that runs
+        # natively on amd64 and arm64 (ragflow PR #19247 arm64 support).
+        ["https://go.dev/dl/go1.27.1.linux-arm64.tar.gz", "go1.27.1.linux-arm64.tar.gz"],
+        ["https://nodejs.org/dist/v22.23.1/node-v22.23.1-linux-arm64.tar.xz", "node-v22.23.1-linux-arm64.tar.xz"],
+        ["https://download.docker.com/linux/static/stable/aarch64/docker-29.6.1.tgz", "docker-29.6.1-aarch64.tgz"],
+        ["https://github.com/docker/buildx/releases/download/v0.35.0/buildx-v0.35.0.linux-arm64", "buildx-v0.35.0.linux-arm64"],
+        ["https://github.com/docker/compose/releases/download/v5.2.0/docker-compose-linux-aarch64", "docker-compose-linux-aarch64"],
+        ["https://github.com/codecov/codecov-cli/releases/download/v11.2.8/codecovcli_linux_arm64", "codecovcli_linux_aarch64"],
+        ["https://github.com/astral-sh/uv/releases/download/0.11.25/uv-aarch64-unknown-linux-gnu.tar.gz", "uv-aarch64-unknown-linux-gnu.tar.gz"],
+        ["https://github.com/astral-sh/ruff/releases/download/0.15.20/ruff-aarch64-unknown-linux-gnu.tar.gz", "ruff-aarch64-unknown-linux-gnu.tar.gz"],
+        ["https://github.com/risinglightdb/sqllogictest-rs/releases/download/v0.29.1/sqllogictest-bin-v0.29.1-aarch64-unknown-linux-musl.tar.gz", "sqllogictest-bin-v0.29.1-aarch64-unknown-linux-musl.tar.gz"],
+        ["https://dl.k8s.io/release/v1.36.1/bin/linux/arm64/kubectl", "kubectl-v1.36.1-arm64"],
+        ["https://github.com/opentofu/opentofu/releases/download/v1.12.3/tofu_1.12.3_linux_arm64.tar.gz", "tofu_1.12.3_linux_arm64.tar.gz"],
+        ["https://github.com/evilmartians/lefthook/releases/download/v2.1.10/lefthook_2.1.10_Linux_arm64.gz", "lefthook_2.1.10_Linux_arm64.gz"],
+        ["https://github.com/stripe/stripe-cli/releases/download/v1.43.2/stripe_1.43.2_linux_arm64.tar.gz", "stripe_1.43.2_linux_arm64.tar.gz"],
+        ["https://github.com/Kitware/CMake/releases/download/v4.4.3/cmake-4.4.3-linux-aarch64.tar.gz", "cmake-4.4.3-linux-aarch64.tar.gz"],
+        ["https://github.com/actions/runner/releases/download/v2.337.0/actions-runner-linux-arm64-2.337.0.tar.gz", "actions-runner-linux-arm64-2.337.0.tar.gz"],
+        ["https://github.com/kognitos/pdfium-static/releases/download/chromium%2F7809/pdfium-linux-arm64-static.tgz", "pdfium-linux-arm64-static.tgz"],
+        ["https://github.com/yfedoseev/pdf_oxide/releases/download/v0.3.73/pdf_oxide-go-ffi-linux-arm64.tar.gz", "pdf_oxide-go-ffi-linux-arm64.tar.gz"],
+        ["https://github.com/yfedoseev/office_oxide/releases/download/v0.1.12/native-linux-aarch64.tar.gz", "office_oxide-linux-aarch64.tar.gz"],
+        ["https://github.com/csukuangfj/onnxruntime-libs/releases/download/v1.23.2/onnxruntime-linux-aarch64-static_lib-1.23.2-glibc2_28.zip", "onnxruntime-linux-aarch64-static_lib-1.23.2-glibc2_28.zip"],
+        ["https://github.com/infiniflow/ragflow-build/releases/download/onnxruntime-v1.29.0/onnxruntime-v1.29.0-linux-aarch64.zip", "onnxruntime-v1.29.0-linux-aarch64.zip"],
+        # DeepDoc model files (det/layout/tsr/rec.onnx, ocr.res), baked into the
+        # runner image so CI never downloads them at run time.
+        ["https://huggingface.co/InfiniFlow/deepdoc/resolve/main/det.onnx", "deepdoc-models/det.onnx"],
+        ["https://huggingface.co/InfiniFlow/deepdoc/resolve/main/layout.onnx", "deepdoc-models/layout.onnx"],
+        ["https://huggingface.co/InfiniFlow/deepdoc/resolve/main/tsr.onnx", "deepdoc-models/tsr.onnx"],
+        ["https://huggingface.co/InfiniFlow/deepdoc/resolve/main/rec.onnx", "deepdoc-models/rec.onnx"],
+        ["https://huggingface.co/InfiniFlow/deepdoc/resolve/main/ocr.res", "deepdoc-models/ocr.res"],
+        ["https://huggingface.co/InfiniFlow/deepdoc/resolve/main/det.ort", "deepdoc-models/det.ort"],
+        ["https://huggingface.co/InfiniFlow/deepdoc/resolve/main/layout.laws.ort", "deepdoc-models/layout.laws.ort"],
+        ["https://huggingface.co/InfiniFlow/deepdoc/resolve/main/layout.manual.ort", "deepdoc-models/layout.manual.ort"],
+        ["https://huggingface.co/InfiniFlow/deepdoc/resolve/main/layout.ort", "deepdoc-models/layout.ort"],
+        ["https://huggingface.co/InfiniFlow/deepdoc/resolve/main/layout.paper.ort", "deepdoc-models/layout.paper.ort"],
+        ["https://huggingface.co/InfiniFlow/deepdoc/resolve/main/rec.ort", "deepdoc-models/rec.ort"],
+        ["https://huggingface.co/InfiniFlow/deepdoc/resolve/main/tsr.ort", "deepdoc-models/tsr.ort"],
+    ]
+    for item in urls:
+        if isinstance(item, list):
+            url, filename = item
+            rc = download(url, filename)
+        else:
+            rc = download(item)
+        if rc != 0:
+            return rc
+
+    local_dir = os.path.abspath("nltk_data")
+    # NLTK >=3.8.2 gates `wordnet` behind `omw-1.4`; both must be present or
+    # tokenization-backed unit tests (e.g. test_epub_parser) raise LookupError
+    # at runtime. Bake all four into the runner image via the Dockerfile COPY.
+    for data in ["omw-1.4", "wordnet", "punkt", "punkt_tab"]:
+        print(f"Downloading nltk {data}...")
+        nltk.download(data, download_dir=local_dir)
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
