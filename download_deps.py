@@ -125,7 +125,7 @@ def main() -> int:
         # Baked into the runner image (see Dockerfile) so CI never downloads it.
         ["https://github.com/csukuangfj/onnxruntime-libs/releases/download/v1.23.2/onnxruntime-linux-x64-static_lib-1.23.2-glibc2_28.zip",
          "onnxruntime-linux-x64-static_lib-1.23.2-glibc2_28.zip"],
-         ["https://github.com/infiniflow/ragflow-build/releases/download/onnxruntime-v1.29.0/onnxruntime-v1.29.0-linux-x86_64.zip",
+         ["https://github.com/infiniflow/ragflow-build/releases/download/onnxruntime-v1.29.0-patch2/onnxruntime-v1.29.0-linux-x86_64.zip",
          "onnxruntime-v1.29.0-linux-x86_64.zip"],
         # ---- arm64 (aarch64) counterparts ----
         # Mirrors the amd64 block above so a single `download_deps.py` run
@@ -151,7 +151,7 @@ def main() -> int:
         ["https://github.com/yfedoseev/pdf_oxide/releases/download/v0.3.73/pdf_oxide-go-ffi-linux-arm64.tar.gz", "pdf_oxide-go-ffi-linux-arm64.tar.gz"],
         ["https://github.com/yfedoseev/office_oxide/releases/download/v0.1.12/native-linux-aarch64.tar.gz", "office_oxide-linux-aarch64.tar.gz"],
         ["https://github.com/csukuangfj/onnxruntime-libs/releases/download/v1.23.2/onnxruntime-linux-aarch64-static_lib-1.23.2-glibc2_28.zip", "onnxruntime-linux-aarch64-static_lib-1.23.2-glibc2_28.zip"],
-        ["https://github.com/infiniflow/ragflow-build/releases/download/onnxruntime-v1.29.0/onnxruntime-v1.29.0-linux-aarch64.zip", "onnxruntime-v1.29.0-linux-aarch64.zip"],
+        ["https://github.com/infiniflow/ragflow-build/releases/download/onnxruntime-v1.29.0-patch2/onnxruntime-v1.29.0-linux-aarch64.zip", "onnxruntime-v1.29.0-linux-aarch64.zip"],
         # DeepDoc model files (det/layout/tsr/rec.onnx, ocr.res), baked into the
         # runner image so CI never downloads them at run time.
         ["https://huggingface.co/InfiniFlow/deepdoc/resolve/main/det.onnx", "deepdoc-models/det.onnx"],
