@@ -14,23 +14,25 @@ ARG NEED_MIRROR=0
 ARG TARGETARCH
 
 RUN apt update -y && \
-    apt --no-install-recommends install -y ca-certificates
+    apt --no-install-recommends install -y ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 
 RUN if [ "$NEED_MIRROR" == "1" ]; then \
         sed -i 's|http://archive.ubuntu.com|https://mirrors.tuna.tsinghua.edu.cn|g' /etc/apt/sources.list.d/ubuntu.sources; \
         sed -i 's|http://security.ubuntu.com|https://mirrors.tuna.tsinghua.edu.cn|g' /etc/apt/sources.list.d/ubuntu.sources; \
         sed -i 's|http://ports.ubuntu.com|https://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports|g' /etc/apt/sources.list.d/ubuntu.sources; \
-        apt-get update -y; \
         mkdir -p /etc/uv; \
         echo 'python-install-mirror = "https://registry.npmmirror.com/-/binary/python-build-standalone/"' > /etc/uv/uv.toml; \
         echo "[[index]]" >> /etc/uv/uv.toml; \
         echo 'url = "https://pypi.tuna.tsinghua.edu.cn/simple"' >> /etc/uv/uv.toml; \
         echo "default = true" >> /etc/uv/uv.toml; \
     fi; \
+    apt-get update -y && \
     apt-get upgrade -y && \
     apt-get install -y --no-install-recommends curl jq build-essential libssl-dev libffi-dev libicu-dev libsimde-dev libpcre2-dev python3 python3-venv python3-dev python3-pip pipx sudo git gh gawk sed wget gpg openssh-client gettext iproute2 curl telnet unzip && \
     sudo ldconfig && \
-    apt-get clean -y
+    apt-get clean -y && \
+    rm -rf /var/lib/apt/lists/*
 
 RUN wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | tee /etc/apt/trusted.gpg.d/apt.llvm.org.asc && \
     if [ "$NEED_MIRROR" == "1" ]; then \
@@ -43,7 +45,8 @@ RUN wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | tee /etc/apt/trusted.
     ln -s /usr/bin/ld.lld-20 /usr/bin/ld.lld && \
     ln -s /usr/bin/clang-20 /usr/bin/clang && \
     ln -s /usr/bin/clang++-20 /usr/bin/clang++ && \
-    apt-get clean -y
+    apt-get clean -y && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install Go for running Go tests
 RUN --mount=type=bind,source=go1.27.1.linux-amd64.tar.gz,target=/tmp/go-amd64.tar.gz \
