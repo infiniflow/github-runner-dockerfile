@@ -108,7 +108,7 @@ def main() -> int:
         "https://go.dev/dl/go1.27.1.linux-amd64.tar.gz",
         "https://nodejs.org/dist/v22.23.1/node-v22.23.1-linux-x64.tar.xz",
         "https://github.com/stripe/stripe-cli/releases/download/v1.43.2/stripe_1.43.2_linux_x86_64.tar.gz",
-        "https://github.com/actions/runner/releases/download/v2.337.0/actions-runner-linux-x64-2.337.0.tar.gz",
+        "https://github.com/actions/runner/releases/download/v2.338.2/actions-runner-linux-x64-2.338.2.tar.gz",
         ["https://dl.k8s.io/release/v1.36.1/bin/linux/amd64/kubectl", "kubectl-v1.36.1"],
         "https://github.com/opentofu/opentofu/releases/download/v1.12.3/tofu_1.12.3_linux_amd64.tar.gz",
         "https://github.com/evilmartians/lefthook/releases/download/v2.1.10/lefthook_2.1.10_Linux_x86_64.gz",
@@ -119,7 +119,7 @@ def main() -> int:
          "pdfium-linux-x64-static.tgz"],
         ["https://github.com/yfedoseev/pdf_oxide/releases/download/v0.3.73/pdf_oxide-go-ffi-linux-amd64.tar.gz",
          "pdf_oxide-go-ffi-linux-amd64.tar.gz"],
-        ["https://github.com/yfedoseev/office_oxide/releases/download/v0.1.12/native-linux-x86_64.tar.gz",
+        ["https://github.com/yfedoseev/office_oxide/releases/download/v0.1.16/native-linux-x86_64.tar.gz",
          "office_oxide-linux-x86_64.tar.gz"],
         # onnxruntime static libs for the in-process Go DeepDoc backend.
         # Baked into the runner image (see Dockerfile) so CI never downloads it.
@@ -146,10 +146,10 @@ def main() -> int:
         ["https://github.com/evilmartians/lefthook/releases/download/v2.1.10/lefthook_2.1.10_Linux_arm64.gz", "lefthook_2.1.10_Linux_arm64.gz"],
         ["https://github.com/stripe/stripe-cli/releases/download/v1.43.2/stripe_1.43.2_linux_arm64.tar.gz", "stripe_1.43.2_linux_arm64.tar.gz"],
         ["https://github.com/Kitware/CMake/releases/download/v4.4.3/cmake-4.4.3-linux-aarch64.tar.gz", "cmake-4.4.3-linux-aarch64.tar.gz"],
-        ["https://github.com/actions/runner/releases/download/v2.337.0/actions-runner-linux-arm64-2.337.0.tar.gz", "actions-runner-linux-arm64-2.337.0.tar.gz"],
+        ["https://github.com/actions/runner/releases/download/v2.338.2/actions-runner-linux-arm64-2.338.2.tar.gz", "actions-runner-linux-arm64-2.338.2.tar.gz"],
         ["https://github.com/kognitos/pdfium-static/releases/download/chromium%2F7809/pdfium-linux-arm64-static.tgz", "pdfium-linux-arm64-static.tgz"],
         ["https://github.com/yfedoseev/pdf_oxide/releases/download/v0.3.73/pdf_oxide-go-ffi-linux-arm64.tar.gz", "pdf_oxide-go-ffi-linux-arm64.tar.gz"],
-        ["https://github.com/yfedoseev/office_oxide/releases/download/v0.1.12/native-linux-aarch64.tar.gz", "office_oxide-linux-aarch64.tar.gz"],
+        ["https://github.com/yfedoseev/office_oxide/releases/download/v0.1.16/native-linux-aarch64.tar.gz", "office_oxide-linux-aarch64.tar.gz"],
         ["https://github.com/csukuangfj/onnxruntime-libs/releases/download/v1.23.2/onnxruntime-linux-aarch64-static_lib-1.23.2-glibc2_28.zip", "onnxruntime-linux-aarch64-static_lib-1.23.2-glibc2_28.zip"],
         ["https://github.com/infiniflow/ragflow-build/releases/download/onnxruntime-v1.29.0-patch2/onnxruntime-v1.29.0-linux-aarch64.zip", "onnxruntime-v1.29.0-linux-aarch64.zip"],
         # DeepDoc model files (det/layout/tsr/rec.onnx, ocr.res), baked into the

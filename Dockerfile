@@ -242,16 +242,16 @@ RUN mkdir -p /opt/ragflow-native-libs/pdfium-static /opt/ragflow-native-libs/pdf
             [ "$(strings /opt/ragflow-native-libs/pdf_oxide/lib/linux_amd64/libpdf_oxide.a 2>/dev/null | grep -oE 'pdf_oxide [0-9]+\.[0-9]+\.[0-9]+' | head -1 | cut -d' ' -f2)" = "0.3.73" ] || \
                 (echo "ERROR: pdf_oxide version mismatch (amd64), expected v0.3.73; run: rm pdf_oxide-go-ffi-linux-amd64.tar.gz && uv run download_deps.py" && exit 1) && \
             tar xzf /tmp/office_oxide-linux-x86_64.tar.gz -C /opt/ragflow-native-libs/office_oxide && \
-            strings /opt/ragflow-native-libs/office_oxide/lib/liboffice_oxide.a 2>/dev/null | grep -Fxq "0.1.12" || \
-                (echo "ERROR: office_oxide version mismatch (amd64), expected v0.1.12; run: rm office_oxide-linux-x86_64.tar.gz && uv run download_deps.py" && exit 1) ;; \
+            strings /opt/ragflow-native-libs/office_oxide/lib/liboffice_oxide.a 2>/dev/null | grep -Fxq "0.1.16" || \
+                (echo "ERROR: office_oxide version mismatch (amd64), expected v0.1.16; run: rm office_oxide-linux-x86_64.tar.gz && uv run download_deps.py" && exit 1) ;; \
         arm64) \
             tar xzf /tmp/pdfium-linux-arm64-static.tgz -C /opt/ragflow-native-libs/pdfium-static && \
             tar xzf /tmp/pdf_oxide-go-ffi-linux-arm64.tar.gz -C /opt/ragflow-native-libs/pdf_oxide && \
             [ "$(strings /opt/ragflow-native-libs/pdf_oxide/lib/linux_arm64/libpdf_oxide.a 2>/dev/null | grep -oE 'pdf_oxide [0-9]+\.[0-9]+\.[0-9]+' | head -1 | cut -d' ' -f2)" = "0.3.73" ] || \
                 (echo "ERROR: pdf_oxide version mismatch (arm64), expected v0.3.73; run: rm pdf_oxide-go-ffi-linux-arm64.tar.gz && uv run download_deps.py" && exit 1) && \
             tar xzf /tmp/office_oxide-linux-aarch64.tar.gz -C /opt/ragflow-native-libs/office_oxide && \
-            strings /opt/ragflow-native-libs/office_oxide/lib/liboffice_oxide.a 2>/dev/null | grep -Fxq "0.1.12" || \
-                (echo "ERROR: office_oxide version mismatch (arm64), expected v0.1.12; run: rm office_oxide-linux-aarch64.tar.gz && uv run download_deps.py" && exit 1) ;; \
+            strings /opt/ragflow-native-libs/office_oxide/lib/liboffice_oxide.a 2>/dev/null | grep -Fxq "0.1.16" || \
+                (echo "ERROR: office_oxide version mismatch (arm64), expected v0.1.16; run: rm office_oxide-linux-aarch64.tar.gz && uv run download_deps.py" && exit 1) ;; \
         *) echo "ERROR: unsupported TARGETARCH=$TARGETARCH" && exit 1 ;; \
     esac && \
     rm /tmp/pdfium-linux-*.tgz /tmp/pdf_oxide-go-ffi-linux-*.tar.gz /tmp/office_oxide-linux-*.tar.gz
@@ -309,8 +309,8 @@ RUN if [ "$NEED_MIRROR" == "1" ]; then \
 
 RUN uv python install 3.12 3.13 3.14
 
-RUN --mount=type=bind,source=actions-runner-linux-x64-2.337.0.tar.gz,target=/tmp/runner-amd64.tar.gz \
-    --mount=type=bind,source=actions-runner-linux-arm64-2.337.0.tar.gz,target=/tmp/runner-arm64.tar.gz \
+RUN --mount=type=bind,source=actions-runner-linux-x64-2.338.2.tar.gz,target=/tmp/runner-amd64.tar.gz \
+    --mount=type=bind,source=actions-runner-linux-arm64-2.338.2.tar.gz,target=/tmp/runner-arm64.tar.gz \
     cd /home/alice \
     && mkdir actions-runner \
     && cd actions-runner \
