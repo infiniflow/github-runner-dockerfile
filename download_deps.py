@@ -15,6 +15,7 @@ Usage:  uv run download_deps.py
 import os
 import sys
 import ssl
+import shutil
 import pathlib
 from urllib import request, parse, error
 
@@ -180,9 +181,30 @@ def main() -> int:
     # NLTK >=3.8.2 gates `wordnet` behind `omw-1.4`; both must be present or
     # tokenization-backed unit tests (e.g. test_epub_parser) raise LookupError
     # at runtime. Bake all four into the runner image via the Dockerfile COPY.
+    #
+    # NLTK >=3.9 pathsec refuses to EXTRACT archives into a world-/group-
+    # writable directory (another local user could plant files). CI workspaces
+    # are typically group-writable, so download into a private staging dir
+    # under $HOME first, then copy the result into the repo's nltk_data (used
+    # by the Dockerfile COPY). Extraction into a private, user-owned dir passes
+    # pathsec's ownership/writability checks.
+    stage_dir = os.path.join(os.path.expanduser("~"), ".nltk_data_stage")
+    os.makedirs(stage_dir, exist_ok=True)
+    os.chmod(stage_dir, 0o700)
     for data in ["omw-1.4", "wordnet", "punkt", "punkt_tab"]:
         print(f"Downloading nltk {data}...")
-        nltk.download(data, download_dir=local_dir)
+        nltk.download(data, download_dir=stage_dir)
+    # Sync staged corpora into the repo's nltk_data for the Dockerfile COPY.
+    os.makedirs(local_dir, exist_ok=True)
+    for entry in os.listdir(stage_dir):
+        src = os.path.join(stage_dir, entry)
+        dst = os.path.join(local_dir, entry)
+        if os.path.isdir(src):
+            if os.path.exists(dst):
+                shutil.rmtree(dst)
+            shutil.copytree(src, dst)
+        else:
+            shutil.copy2(src, dst)
 
     return 0
 
