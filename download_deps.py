@@ -115,19 +115,12 @@ def main() -> int:
         "https://github.com/evilmartians/lefthook/releases/download/v2.1.10/lefthook_2.1.10_Linux_x86_64.gz",
         # cmake 4.4.3 (needed to build certain native dependencies in CI)
         "https://github.com/Kitware/CMake/releases/download/v4.4.3/cmake-4.4.3-linux-x86_64.tar.gz",
-        # Native static libraries for Go build (pdfium, pdf_oxide, office_oxide)
-        ["https://github.com/kognitos/pdfium-static/releases/download/chromium%2F7809/pdfium-linux-x64-static.tgz",
-         "pdfium-linux-x64-static.tgz"],
-        ["https://github.com/yfedoseev/pdf_oxide/releases/download/v0.3.73/pdf_oxide-go-ffi-linux-amd64.tar.gz",
-         "pdf_oxide-go-ffi-linux-amd64.tar.gz"],
-        ["https://github.com/yfedoseev/office_oxide/releases/download/v0.1.16/native-linux-x86_64.tar.gz",
-         "office_oxide-linux-x86_64.tar.gz"],
-        # onnxruntime static libs for the in-process Go DeepDoc backend.
-        # Baked into the runner image (see Dockerfile) so CI never downloads it.
+        # ONNX Runtime 1.23.2 static libs — kept SOLELY for the legacy Python
+        # DeepDoc pipeline. The Go in-process backend (1.29.0) is now supplied by
+        # ragflow's tools/scripts/download_dev_deps.py and COPYed into the runner
+        # image (see Dockerfile), so it is no longer downloaded here.
         ["https://github.com/csukuangfj/onnxruntime-libs/releases/download/v1.23.2/onnxruntime-linux-x64-static_lib-1.23.2-glibc2_28.zip",
          "onnxruntime-linux-x64-static_lib-1.23.2-glibc2_28.zip"],
-         ["https://github.com/infiniflow/ragflow-build/releases/download/onnxruntime-v1.29.0-patch2/onnxruntime-v1.29.0-linux-x86_64.zip",
-         "onnxruntime-v1.29.0-linux-x86_64.zip"],
         # ---- arm64 (aarch64) counterparts ----
         # Mirrors the amd64 block above so a single `download_deps.py` run
         # provisions both architectures. The Dockerfile selects per TARGETARCH
@@ -148,11 +141,7 @@ def main() -> int:
         ["https://github.com/stripe/stripe-cli/releases/download/v1.43.2/stripe_1.43.2_linux_arm64.tar.gz", "stripe_1.43.2_linux_arm64.tar.gz"],
         ["https://github.com/Kitware/CMake/releases/download/v4.4.3/cmake-4.4.3-linux-aarch64.tar.gz", "cmake-4.4.3-linux-aarch64.tar.gz"],
         ["https://github.com/actions/runner/releases/download/v2.338.2/actions-runner-linux-arm64-2.338.2.tar.gz", "actions-runner-linux-arm64-2.338.2.tar.gz"],
-        ["https://github.com/kognitos/pdfium-static/releases/download/chromium%2F7809/pdfium-linux-arm64-static.tgz", "pdfium-linux-arm64-static.tgz"],
-        ["https://github.com/yfedoseev/pdf_oxide/releases/download/v0.3.73/pdf_oxide-go-ffi-linux-arm64.tar.gz", "pdf_oxide-go-ffi-linux-arm64.tar.gz"],
-        ["https://github.com/yfedoseev/office_oxide/releases/download/v0.1.16/native-linux-aarch64.tar.gz", "office_oxide-linux-aarch64.tar.gz"],
         ["https://github.com/csukuangfj/onnxruntime-libs/releases/download/v1.23.2/onnxruntime-linux-aarch64-static_lib-1.23.2-glibc2_28.zip", "onnxruntime-linux-aarch64-static_lib-1.23.2-glibc2_28.zip"],
-        ["https://github.com/infiniflow/ragflow-build/releases/download/onnxruntime-v1.29.0-patch2/onnxruntime-v1.29.0-linux-aarch64.zip", "onnxruntime-v1.29.0-linux-aarch64.zip"],
         # DeepDoc model files (det/layout/tsr/rec.onnx, ocr.res), baked into the
         # runner image so CI never downloads them at run time.
         ["https://huggingface.co/InfiniFlow/deepdoc/resolve/main/det.onnx", "deepdoc-models/det.onnx"],

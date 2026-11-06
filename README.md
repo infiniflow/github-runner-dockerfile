@@ -4,9 +4,23 @@ Dockerfile for the creation of a GitHub Actions runner image to be deployed dyna
 To build the runner image:
 
 ```
+# 1. (one-time, on the image-build host) Fetch the version-keyed native-lib cache
+#    that ragflow's downloader produces (~/ragflow-native-libs/<lib>/v<version>/),
+#    then drop that dir into THIS build context. This is what the runner image
+#    ships for the Go build / CI — versions auto-align with ragflow, no manual
+#    URL / dir / assertion sync across repos (see ragflow PR #22099).
+$ cd <ragflow> && uv run tools/scripts/download_dev_deps.py
+$ cp -r ~/ragflow-native-libs <this-repo>/ragflow-native-libs
+# 2. Fetch the remaining build tools / DeepDoc models / nltk data.
 $ uv run download_deps.py
+# 3. Build.
 $ docker build --build-arg NEED_MIRROR=1 -t infiniflow/github_action_runner .
 ```
+
+> Note: `download_deps.py` here no longer fetches the native `*.a` libs
+> (pdfium / pdf_oxide / office_oxide / ORT 1.29.0); only ONNX Runtime 1.23.2 is
+> still fetched, kept solely for the legacy Python DeepDoc pipeline. The rest are
+> supplied via the `ragflow-native-libs/` cache copied in step 1.
 
 When running the docker image, or when executing docker compose, environment variables for repo-owner/repo-name and github-token must be included. 
 

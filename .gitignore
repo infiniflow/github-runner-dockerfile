@@ -1,2 +1,7 @@
 # .gitignore uses glob patterns instead of regex
 *.env
+
+# Native static libs (pdfium / pdf_oxide / office_oxide / onnxruntime) are no
+# longer committed; they are produced by ragflow's tools/scripts/download_dev_deps.py
+# and dropped into this build context as `ragflow-native-libs/` before `docker build`.
+ragflow-native-libs/

@@ -225,63 +225,22 @@ RUN --mount=type=bind,source=cmake-4.4.3-linux-x86_64.tar.gz,target=/tmp/cmake-a
 # Copy NLTK data
 COPY nltk_data /usr/share/nltk_data
 
-# Pre-extract native static libraries for Go build (pdfium, pdf_oxide, office_oxide).
-# build.sh checks /opt/ragflow-native-libs/ first before attempting network download.
-# Both architectures' archives are baked into the build context; the right one
-# is selected per TARGETARCH so a single image tag serves amd64 and arm64.
-COPY pdfium-linux-x64-static.tgz pdfium-linux-arm64-static.tgz \
-     pdf_oxide-go-ffi-linux-amd64.tar.gz pdf_oxide-go-ffi-linux-arm64.tar.gz \
-     office_oxide-linux-x86_64.tar.gz office_oxide-linux-aarch64.tar.gz \
-     onnxruntime-linux-x64-static_lib-1.23.2-glibc2_28.zip onnxruntime-linux-aarch64-static_lib-1.23.2-glibc2_28.zip \
-     onnxruntime-v1.29.0-linux-x86_64.zip onnxruntime-v1.29.0-linux-aarch64.zip /tmp/
-RUN mkdir -p /opt/ragflow-native-libs/pdfium-static /opt/ragflow-native-libs/pdf_oxide /opt/ragflow-native-libs/office_oxide && \
-    case "$TARGETARCH" in \
-        amd64) \
-            tar xzf /tmp/pdfium-linux-x64-static.tgz -C /opt/ragflow-native-libs/pdfium-static && \
-            tar xzf /tmp/pdf_oxide-go-ffi-linux-amd64.tar.gz -C /opt/ragflow-native-libs/pdf_oxide && \
-            [ "$(strings /opt/ragflow-native-libs/pdf_oxide/lib/linux_amd64/libpdf_oxide.a 2>/dev/null | grep -oE 'pdf_oxide [0-9]+\.[0-9]+\.[0-9]+' | head -1 | cut -d' ' -f2)" = "0.3.73" ] || \
-                (echo "ERROR: pdf_oxide version mismatch (amd64), expected v0.3.73; run: rm pdf_oxide-go-ffi-linux-amd64.tar.gz && uv run download_deps.py" && exit 1) && \
-            tar xzf /tmp/office_oxide-linux-x86_64.tar.gz -C /opt/ragflow-native-libs/office_oxide && \
-            strings /opt/ragflow-native-libs/office_oxide/lib/liboffice_oxide.a 2>/dev/null | grep -Fxq "0.1.16" || \
-                (echo "ERROR: office_oxide version mismatch (amd64), expected v0.1.16; run: rm office_oxide-linux-x86_64.tar.gz && uv run download_deps.py" && exit 1) ;; \
-        arm64) \
-            tar xzf /tmp/pdfium-linux-arm64-static.tgz -C /opt/ragflow-native-libs/pdfium-static && \
-            tar xzf /tmp/pdf_oxide-go-ffi-linux-arm64.tar.gz -C /opt/ragflow-native-libs/pdf_oxide && \
-            [ "$(strings /opt/ragflow-native-libs/pdf_oxide/lib/linux_arm64/libpdf_oxide.a 2>/dev/null | grep -oE 'pdf_oxide [0-9]+\.[0-9]+\.[0-9]+' | head -1 | cut -d' ' -f2)" = "0.3.73" ] || \
-                (echo "ERROR: pdf_oxide version mismatch (arm64), expected v0.3.73; run: rm pdf_oxide-go-ffi-linux-arm64.tar.gz && uv run download_deps.py" && exit 1) && \
-            tar xzf /tmp/office_oxide-linux-aarch64.tar.gz -C /opt/ragflow-native-libs/office_oxide && \
-            strings /opt/ragflow-native-libs/office_oxide/lib/liboffice_oxide.a 2>/dev/null | grep -Fxq "0.1.16" || \
-                (echo "ERROR: office_oxide version mismatch (arm64), expected v0.1.16; run: rm office_oxide-linux-aarch64.tar.gz && uv run download_deps.py" && exit 1) ;; \
-        *) echo "ERROR: unsupported TARGETARCH=$TARGETARCH" && exit 1 ;; \
-    esac && \
-    rm /tmp/pdfium-linux-*.tgz /tmp/pdf_oxide-go-ffi-linux-*.tar.gz /tmp/office_oxide-linux-*.tar.gz
-
-# onnxruntime static libs, baked into /opt (like the other native libs);
-# build.sh seeds it to the user cache at build/test time via _seed_from_system,
-# so CI never downloads it. 1.23.2 is consumed by the Python DeepDoc pipeline;
-# 1.29.0 is the Go in-process backend (mirrors DeepDocORTVersion). The two are
-# extracted into separate version-stamped dirs under static_lib.
+# ONNX Runtime 1.23.2 static libs are kept here SOLELY for the legacy Python
+# DeepDoc pipeline, which still links/loads this version. The Go in-process
+# backend uses 1.29.0, which is supplied by ragflow's
+# tools/scripts/download_dev_deps.py via the version-keyed cache COPYed below
+# into /home/alice/ragflow-native-libs (see the COPY after `useradd`).
+# NOTE: the new ragflow build.sh reads ORT only from ~/ragflow-native-libs/
+# onnxruntime, so this /opt copy is a standalone legacy artifact — it is NOT
+# consulted by the Go build and therefore cannot clash with the 1.29.0 dir.
+COPY onnxruntime-linux-x64-static_lib-1.23.2-glibc2_28.zip onnxruntime-linux-aarch64-static_lib-1.23.2-glibc2_28.zip /tmp/
 RUN mkdir -p /opt/ragflow-native-libs/onnxruntime/static_lib && \
     case "$TARGETARCH" in \
-        amd64) \
-            python3 -c "import zipfile; zipfile.ZipFile('/tmp/onnxruntime-linux-x64-static_lib-1.23.2-glibc2_28.zip').extractall('/opt/ragflow-native-libs/onnxruntime/static_lib')" && \
-            python3 -c "import zipfile,shutil,os; \
-              z=zipfile.ZipFile('/tmp/onnxruntime-v1.29.0-linux-x86_64.zip'); \
-              z.extractall('/opt/ragflow-native-libs/onnxruntime/static_lib'); z.close(); \
-              src='/opt/ragflow-native-libs/onnxruntime/static_lib/onnxruntime-v1.29.0-linux-x86_64'; \
-              dst='/opt/ragflow-native-libs/onnxruntime/static_lib/onnxruntime-linux-x64-static_lib-1.29.0-glibc2_28'; \
-              (os.path.exists(dst) and shutil.rmtree(dst)); os.rename(src,dst)" ;; \
-        arm64) \
-            python3 -c "import zipfile; zipfile.ZipFile('/tmp/onnxruntime-linux-aarch64-static_lib-1.23.2-glibc2_28.zip').extractall('/opt/ragflow-native-libs/onnxruntime/static_lib')" && \
-            python3 -c "import zipfile,shutil,os; \
-              z=zipfile.ZipFile('/tmp/onnxruntime-v1.29.0-linux-aarch64.zip'); \
-              z.extractall('/opt/ragflow-native-libs/onnxruntime/static_lib'); z.close(); \
-              src='/opt/ragflow-native-libs/onnxruntime/static_lib/onnxruntime-v1.29.0-linux-aarch64'; \
-              dst='/opt/ragflow-native-libs/onnxruntime/static_lib/onnxruntime-linux-aarch64-static_lib-1.29.0-glibc2_28'; \
-              (os.path.exists(dst) and shutil.rmtree(dst)); os.rename(src,dst)" ;; \
-        *) exit 1 ;; \
+        amd64) python3 -c "import zipfile; zipfile.ZipFile('/tmp/onnxruntime-linux-x64-static_lib-1.23.2-glibc2_28.zip').extractall('/opt/ragflow-native-libs/onnxruntime/static_lib')" ;; \
+        arm64) python3 -c "import zipfile; zipfile.ZipFile('/tmp/onnxruntime-linux-aarch64-static_lib-1.23.2-glibc2_28.zip').extractall('/opt/ragflow-native-libs/onnxruntime/static_lib')" ;; \
+        *) echo "ERROR: unsupported TARGETARCH=$TARGETARCH" && exit 1 ;; \
     esac && \
-    rm /tmp/onnxruntime-*.zip
+    rm /tmp/onnxruntime-linux-*-static_lib-1.23.2-glibc2_28.zip
 
 # DeepDoc model files (det/layout/tsr/rec.onnx, ocr.res), baked into the
 # runner image so CI never downloads them at run time. Consumed by
@@ -294,6 +253,17 @@ RUN mkdir -p /opt/ragflow_deps && \
 
 RUN useradd -m alice \
     && echo "alice      ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/alice
+
+# Native static libs (pdfium, pdf_oxide, office_oxide, ORT 1.29.0) are no longer
+# downloaded/extracted here. Per ragflow PR #22099 (offline-first contract) the
+# runner image ships the version-keyed cache that ragflow's
+# tools/scripts/download_dev_deps.py produces (~/ragflow-native-libs/<lib>/v<version>/)
+# by COPYing it into the runner user's home. Versions auto-align with ragflow —
+# no manual URL/dir/assertion sync across repos. Build flow: run ragflow's
+# downloader on the image-build host, then drop the produced `ragflow-native-libs`
+# dir into THIS build context and rebuild.
+COPY ragflow-native-libs /home/alice/ragflow-native-libs/
+RUN chown -R alice:alice /home/alice/ragflow-native-libs
 
 # since the config and run script for actions are not allowed to be run by root,
 # set the user to "alice" so all subsequent commands are run as the alice user
