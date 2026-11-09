@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
-
-"""
-This script should be run from the project root directory
-Usage:  uv run download_deps.py
-"""
-# PEP 723 metadata
 # /// script
 # requires-python = ">=3.10"
 # dependencies = [
 #   "nltk",
 # ]
 # ///
+
+"""
+This script should be run from the project root directory
+Usage:  uv run download_deps.py
+"""
 
 import os
 import sys
@@ -25,15 +24,24 @@ from urllib import request, parse, error
 os.environ.setdefault("NLTK_ALLOW_PROXIED_URLOPEN", "1")
 
 import nltk
-import nltk.pathsec
+
+# `nltk.pathsec` (the SSRF / path-traversal guard) only ships with nltk >= 3.10.
+# Older releases have no such guard, so there is nothing to relax there and the
+# plain `nltk.download` works fine behind a proxy. Keep the import optional so
+# the script also runs on mirrors that only provide nltk < 3.10.
+try:
+    from nltk import pathsec
+except ImportError:
+    pathsec = None
 
 # The build host sits behind an intercepting proxy whose egress IP
 # (198.18.0.0/15) NLTK's SSRF guard flags as "restricted", so even with the
 # proxied-fetch opt-in `nltk.download` still aborts. For this trusted, one-time
 # data fetch we relax pathsec enforcement (warn, don't raise) so the download
 # can proceed through the proxy.
-nltk.pathsec.ENFORCE = False
-nltk.pathsec.ALLOW_PROXIED_FETCH = True
+if pathsec is not None:
+    pathsec.ENFORCE = False
+    pathsec.ALLOW_PROXIED_FETCH = True
 
 
 def ensure_project_root() -> None:

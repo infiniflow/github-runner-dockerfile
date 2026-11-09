@@ -262,8 +262,8 @@ RUN useradd -m alice \
 # no manual URL/dir/assertion sync across repos. Build flow: run ragflow's
 # downloader on the image-build host, then drop the produced `ragflow-native-libs`
 # dir into THIS build context and rebuild.
-COPY ragflow-native-libs /home/alice/ragflow-native-libs/
-RUN chown -R alice:alice /home/alice/ragflow-native-libs
+#COPY ragflow-native-libs /home/alice/ragflow-native-libs/
+#RUN chown -R alice:alice /home/alice/ragflow-native-libs
 
 # since the config and run script for actions are not allowed to be run by root,
 # set the user to "alice" so all subsequent commands are run as the alice user
